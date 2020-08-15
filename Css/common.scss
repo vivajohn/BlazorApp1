@@ -1,0 +1,39 @@
+﻿@import "variables.scss";
+
+.pointer {
+    cursor: pointer;
+}
+
+.disabled {
+    opacity: 0.4;
+}
+
+.indent {
+    margin-left: $indent;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.rowfull {
+    @extend .row;
+    justify-content: space-between;
+}
+
+.rowfullcenter {
+    @extend .rowfull;
+    align-items: center;
+}
+
+.col {
+    display: flex;
+    flex-direction: column;
+}
+
+.colfull {
+    @extend .col;
+    justify-content: space-between;
+}
+

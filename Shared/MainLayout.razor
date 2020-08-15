@@ -1,0 +1,40 @@
+﻿@inherits LayoutComponentBase
+@using BlazorApp1.Components.Record
+@using BlazorApp1.Components.Navbar
+
+    <div class="main">
+        @Body
+    </div>
+
+@*<div class="main">
+    <Record></Record>
+</div>*@
+
+@*<div class="main">
+        <Navbar>
+            <LeftContent>
+                <span>Left...</span>
+            </LeftContent>
+            <MiddleContent>
+                Mid
+            </MiddleContent>
+            <RightContent>
+                ...Right
+            </RightContent>
+        </Navbar>
+        <Record></Record>
+    </div>*@
+
+@*<div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <div class="main">
+        <div class="top-row px-4">
+            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+        </div>
+
+        <div class="content px-4">
+            @Body
+        </div>
+    </div>*@

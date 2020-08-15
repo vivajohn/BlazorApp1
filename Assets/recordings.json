@@ -1,0 +1,68 @@
+[
+  {
+    "isLanguage": true,
+    "decks": [
+      {
+        "groups": [],
+        "numPairs": 7,
+        "order": 2,
+        "name": "Demo Prompts 1",
+        "id": 1594193464360
+      },
+      {
+        "groups": [],
+        "numPairs": 2,
+        "order": 3,
+        "id": 1571748796723,
+        "name": "Work"
+      },
+      {
+        "groups": [],
+        "numPairs": 2,
+        "order": 4,
+        "id": 1571575355803,
+        "name": "General"
+      }
+    ],
+    "uid": "WTatLnFyjJceDeS4QGMLo3PjFjm1",
+    "id": 1570041849700,
+    "listMode": false,
+    "target": {
+      "name": "de",
+      "id": "de"
+    },
+    "source": {
+      "id": "en",
+      "name": "en"
+    }
+  },
+  {
+    "isLanguage": false,
+    "decks": [
+      {
+        "groups": [],
+        "numPairs": 1,
+        "order": 1,
+        "id": 1571748974851,
+        "name": "Spain"
+      },
+      {
+        "groups": [],
+        "numPairs": 1,
+        "order": 2,
+        "id": 1571748961657,
+        "name": "France"
+      }
+    ],
+    "uid": "WTatLnFyjJceDeS4QGMLo3PjFjm1",
+    "id": 1571748961657,
+    "source": {
+      "id": "P1571748961657",
+      "name": "History"
+    },
+    "target": {
+      "id": "R1571748961657",
+      "name": "History"
+    }
+  }
+]

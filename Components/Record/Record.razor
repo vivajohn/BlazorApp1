@@ -1,0 +1,87 @@
+﻿@using System.IO;
+@using System.Text.Json
+@using BlazorApp1.Data
+@using System.Diagnostics
+@using Google.Cloud.Firestore
+@using BlazorApp1.Components.PairsPanel
+@using BlazorApp1.Components.Navbar
+@inject IUser user;
+@inject IFirebase fb;
+
+<link href="css/Record.css" rel="stylesheet" />
+
+<Navbar>
+    <LeftContent>
+    </LeftContent>
+    <MiddleContent>
+    </MiddleContent>
+    <RightContent>
+        <a href="/">
+            <RoundButton Icon="play_circle_outline"></RoundButton>
+        </a>
+    </RightContent>
+</Navbar>
+
+@if (topic != null)
+{
+    <MatAccordion>
+
+        @foreach (var deck in topic.decks)
+        {
+            <MatExpansionPanel Class="outerpanel" ExpandedChanged="@(e => OnDeckOpen(e, deck))">
+                <MatExpansionPanelSummary>
+                    <div class="header">
+                        <div class="rowfullcenter">
+                            @deck.name
+                        </div>
+                    </div>
+                    <div class="icons">
+                        @if (idOpen == deck.id)
+                        {
+                            <RoundButton Icon="cloud_upload"></RoundButton>
+                            <RoundButton Icon="delete"></RoundButton>
+                            <RoundButton Icon="add"></RoundButton>
+                        }
+                    </div>
+                </MatExpansionPanelSummary>
+                <MatExpansionPanelDetails>
+                    @if (deck.groups != null)
+                    {
+                        @foreach (var pair in deck.groups)
+                        {
+                            <PairsPanel Pair=@pair></PairsPanel>
+                        }
+                    }
+                </MatExpansionPanelDetails>
+            </MatExpansionPanel>
+        }
+
+    </MatAccordion>
+}
+
+@code {
+    Topic topic;
+    long idOpen = -1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var topics = await fb.GetTopics(user);
+        if (topics.Length > 0)
+        {
+            topic = topics[0];
+        }
+    }
+
+    async void OnDeckOpen(bool open, Deck deck)
+    {
+        if (open)
+        {
+            idOpen = deck.id;
+        }
+        if (deck.numPairs > 0 && deck.groups == null)
+        {
+            await fb.GetPairs(user, deck);
+            StateHasChanged();
+        }
+    }
+}

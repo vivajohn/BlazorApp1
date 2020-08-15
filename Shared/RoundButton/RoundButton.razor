@@ -1,0 +1,17 @@
+﻿
+<link href="css/RoundButton.css" rel="stylesheet" />
+
+<button class="round @(Big == true ? "big" : "small")" @onclick="@(() => Click.InvokeAsync(null))">
+    <MatIcon>@Icon</MatIcon>
+</button>
+
+@code {
+    [Parameter]
+    public string Icon { get; set; }
+
+    [Parameter]
+    public bool Big { get; set; }
+
+    [Parameter]
+    public EventCallback Click { get; set; }
+}

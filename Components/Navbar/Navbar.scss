@@ -1,0 +1,10 @@
+﻿@import '../../Css/common.scss';
+
+.navbar {
+    @extend .rowfullcenter;
+    justify-content: space-between;
+    height: 54px;
+    color: white;
+    padding: 0 10px;
+}
+

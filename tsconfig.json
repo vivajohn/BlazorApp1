@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "allowJs": true,
+    "outDir": "out",
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "target": "es2016"
+  },
+  "include": [
+    "wwwroot/scripts/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "out"
+  ],
+  "compileOnSave": true,
+  "typeAcquisition": {
+    "enable": true
+  }
+}

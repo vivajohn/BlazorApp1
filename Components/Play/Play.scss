@@ -1,0 +1,64 @@
+﻿@import '../../Css/common.scss';
+
+$back-size: 340px;
+
+.play {
+    &-panel {
+        @extend .col;
+        justify-content: center;
+        align-items: center;
+        background: black;
+
+        &-content {
+            @extend .col;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            height: $back-size;
+            width: $back-size;
+
+            &-circle {
+                position: absolute;
+                left: 0;
+                height: $back-size;
+                width: $back-size;
+                background-color: $dark-backcolor;
+                border-radius: 50%;
+                display: inline-block;
+                z-index: 0;
+                margin-top: -10px;
+
+                img {
+                    transform: rotate(-20deg);
+                    margin: 20px;
+                }
+            }
+
+            &-buttons {
+                @extend .col;
+                justify-content: space-between;
+                align-items: center;
+                width: 70%;
+                height: 45%;
+                z-index: 1;
+
+                &-top {
+                    @extend .rowfull;
+                    width: 100%;
+                }
+
+                &-bottom {
+                    @extend .rowfull;
+                    width: 80%;
+                    padding: 0 30px 0 30px;
+                }
+            }
+        }
+    }
+
+    &-snack {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}

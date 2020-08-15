@@ -1,0 +1,13 @@
+﻿@using BlazorApp1.Data
+
+<link href="css/PromptPair.css" rel="stylesheet" />
+
+<div class="colfull">
+    <MatTextField Value=@Pair.prompts[0]?.text Label="Prompt..."></MatTextField>
+    <MatTextField Value=@Pair.prompts[1]?.text Label="Response..."></MatTextField>
+</div>
+
+@code {
+    [Parameter]
+    public PromptResponsePair Pair { get; set; }
+}

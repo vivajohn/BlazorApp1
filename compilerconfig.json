@@ -1,0 +1,34 @@
+﻿[
+  {
+    "outputFile": "wwwroot/css/variables.css",
+    "inputFile": "Css/variables.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/common.css",
+    "inputFile": "Css/common.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Record.css",
+    "inputFile": "Components/Record/Record.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/PairsPanel.css",
+    "inputFile": "Components/PairsPanel/PairsPanel.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Navbar.css",
+    "inputFile": "Components/Navbar/Navbar.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/PromptPair.css",
+    "inputFile": "Components/PromptPair/PromptPair.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Play.css",
+    "inputFile": "Components/Play/Play.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/RoundButton.css",
+    "inputFile": "Shared/RoundButton/RoundButton.scss"
+  }
+]

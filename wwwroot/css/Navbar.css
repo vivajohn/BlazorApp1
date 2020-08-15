@@ -1,0 +1,31 @@
+﻿.pointer {
+  cursor: pointer; }
+
+.disabled {
+  opacity: 0.4; }
+
+.indent {
+  margin-left: 20px; }
+
+.row, .rowfull, .rowfullcenter, .navbar {
+  display: flex;
+  flex-direction: row; }
+
+.rowfull, .rowfullcenter, .navbar {
+  justify-content: space-between; }
+
+.rowfullcenter, .navbar {
+  align-items: center; }
+
+.col, .colfull {
+  display: flex;
+  flex-direction: column; }
+
+.colfull {
+  justify-content: space-between; }
+
+.navbar {
+  justify-content: space-between;
+  height: 54px;
+  color: white;
+  padding: 0 10px; }

@@ -1,0 +1,23 @@
+﻿@import '../../Css/common.scss';
+
+.innerpanel {
+    margin-bottom: 15px !important;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.summary {
+}
+
+.icons {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-right: 20px;
+}
+
+

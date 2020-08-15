@@ -1,0 +1,29 @@
+﻿@using BlazorApp1.Data
+@using BlazorApp1.Components.PromptPair
+
+<link href="css/PairsPanel.css" rel="stylesheet" />
+
+<MatAccordion>
+    <MatExpansionPanel Class="innerpanel">
+        <MatExpansionPanelSummary class="summary">
+            <div class="header">
+                <div class="rowfullcenter">
+                    @Pair.prompts[0]?.text - @Pair.prompts[1]?.text
+                </div>
+            </div>
+            <div class="icons">
+                <RoundButton Icon="delete"></RoundButton>
+            </div>
+        </MatExpansionPanelSummary>
+        <MatExpansionPanelDetails class="details">
+            <PromptPair Pair=@Pair></PromptPair>
+        </MatExpansionPanelDetails>
+
+    </MatExpansionPanel>
+</MatAccordion>
+
+
+@code {
+    [Parameter]
+    public PromptResponsePair Pair { get; set; }
+}
