@@ -3,7 +3,7 @@ This is my first experience with Blazor. I implemented part of my Audio Flashcar
 screen shows the list of existing recordings but has no playback or recording funtionality. The playback page plays recordings and reschedules
 the prompts client-side. No writes are done to the server as this is experimental.
 
-![Image of recording page](https://github.com/vivajohn/screenshots/blob/master/blazor_playback.png)
+![Image of recording page](/screenshots/blob/master/blazor_playback.png)
 
 
-![Image of recording page](https://github.com/vivajohn/screenshots/blob/master/blazor_record.png)
+![Image of recording page](/screenshots/blob/master/blazor_record.png)
