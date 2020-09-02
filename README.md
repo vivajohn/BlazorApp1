@@ -6,4 +6,4 @@ the prompts client-side. No writes are done to the server as this is experimenta
 ![Image of recording page](https://github.com/vivajohn/BlazorApp1/blob/master/Screenshots/blazor_playback.png)
 
 
-![Image of recording page](https://github.com/vivajohn/BlazorApp1/blob/master/Screenshots/blazor_playback.png)
+![Image of recording page](https://github.com/vivajohn/BlazorApp1/blob/master/Screenshots/blazor_record.png)
