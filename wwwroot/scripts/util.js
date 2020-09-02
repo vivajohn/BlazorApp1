@@ -88,23 +88,19 @@ class PlayerService {
         this.isLoading = true;
         //const s = new Subject();
         this.audioElement = new Audio(url);
-        this.audioElement.onloadeddata = () => this.zone.run(() => {
+        this.audioElement.onloadeddata = () => {
             this.isLoading = false;
             this.isPlaying = true;
-        });
+        };
         this.audioElement.onended = () => {
-            this.zone.run(() => {
-                this.isPlaying = false;
-                //s.next();
-                //s.complete();
-            });
+            this.isPlaying = false;
             this.audioElement = null;
         };
         this.audioElement.onerror = (err) => {
             this.isLoading = false;
             console.error("Error playing: " + url);
             //s.error("Error playing: " + url);
-            this.zone.run(() => this.isPlaying = false);
+            this.isPlaying = false;
             this.audioElement = null;
         };
         // console.log("play", url);

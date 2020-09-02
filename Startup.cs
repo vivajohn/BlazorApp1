@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FlashCommon;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
@@ -9,8 +10,6 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using BlazorApp1.Data;
-using BlazorApp1.Shared;
 
 namespace BlazorApp1
 {
@@ -28,7 +27,6 @@ namespace BlazorApp1
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IFirebase, FirebaseService>();
-            services.AddSingleton<IUser, UserService>();
 
             services.AddRazorPages();
             services.AddServerSideBlazor();

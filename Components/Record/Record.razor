@@ -1,11 +1,10 @@
 ﻿@using System.IO;
 @using System.Text.Json
-@using BlazorApp1.Data
 @using System.Diagnostics
 @using Google.Cloud.Firestore
 @using BlazorApp1.Components.PairsPanel
 @using BlazorApp1.Components.Navbar
-@inject IUser user;
+@using FlashCommon
 @inject IFirebase fb;
 
 <link href="css/Record.css" rel="stylesheet" />
@@ -17,7 +16,7 @@
     </MiddleContent>
     <RightContent>
         <a href="/">
-            <RoundButton Icon="play_circle_outline"></RoundButton>
+            <RoundButton Icon="record_voice_over"></RoundButton>
         </a>
     </RightContent>
 </Navbar>
@@ -63,16 +62,25 @@
     Topic topic;
     long idOpen = -1;
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync()
     {
-        var topics = await fb.GetTopics(user);
-        if (topics.Length > 0)
-        {
-            topic = topics[0];
-        }
+        return base.OnInitializedAsync();
     }
 
-    async void OnDeckOpen(bool open, Deck deck)
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        fb.GetTopics(Globals.uid).Subscribe(topics =>
+        {
+            if (topics.Length > 0)
+            {
+                topic = topics[0];
+                InvokeAsync(() => StateHasChanged());
+            }
+        });
+    }
+
+    void OnDeckOpen(bool open, Deck deck)
     {
         if (open)
         {
@@ -80,8 +88,10 @@
         }
         if (deck.numPairs > 0 && deck.groups == null)
         {
-            await fb.GetPairs(user, deck);
-            StateHasChanged();
+            fb.GetPairs(Globals.uid, deck).Subscribe(pairs =>
+            {
+                InvokeAsync(() => StateHasChanged());
+            });
         }
     }
 }

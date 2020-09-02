@@ -1,23 +1,21 @@
 ﻿@using BlazorApp1.Components.Navbar
-@using System.Threading;
-@using BlazorApp1.Data;
+@using System.Reactive.Linq;
+@using FlashCommon
 @inject IJSRuntime JSRuntime;
-@inject IUser user;
-@inject IFirebase fb;
 
 <link href="css/Play.css" rel="stylesheet" />
 
 <div class="play">
     <Navbar>
         @*<LeftContent>
-            <span> Left...</span>
-        </LeftContent>
-        <MiddleContent>
-            Mid
-        </MiddleContent>*@
+                <span> Left...</span>
+            </LeftContent>
+            <MiddleContent>
+                Mid
+            </MiddleContent>*@
         <RightContent>
             <a href="/record" class="navlink">
-                <RoundButton Icon="record_voice_over"></RoundButton>
+                <RoundButton Icon="mic"></RoundButton>
             </a>
         </RightContent>
     </Navbar>
@@ -25,10 +23,10 @@
     <div class="play-panel">
         <div class="play-panel-content">
             <div class="play-panel-content-circle">
-                <img src="assets/voice.svg" alt="Kiwi standing on oval">
+                <img src="assets/voice.svg">
             </div>
 
-            @if (recordings != null)
+            @if (mgr != null && mgr.Recordings != null)
             {
                 <div class="play-panel-content-buttons">
                     <div class="play-panel-content-buttons-top">
@@ -48,54 +46,40 @@
 </div>
 
 @code {
-    private List<PromptResponsePair> pairs;
-    private object[] recordings = new object[2];
-    private int currentIndex = 0;
+    private PlaybackMgr mgr;
+    private string[] urls = new string[2];
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
-            // Read the list of active prompt-response pairs
-            pairs = await fb.GetCurrentPairs(user);
-            setRecordings();
+            mgr = new PlaybackMgr(Globals.uid);
+            mgr.Recordings.Subscribe(blobs =>
+            {
+                // Formats the blob data for playback on an HTML media element
+                urls[0] = $"data:{blobs[0].blobType};base64,{blobs[0].data.ToBase64()}";
+                urls[1] = $"data:{blobs[1].blobType};base64,{blobs[1].data.ToBase64()}";
+            });
+
             StateHasChanged();
         }
     }
 
-    async void PlayPrompt(int index)
+    void PlayPrompt(int index)
     {
-        await JSRuntime.InvokeAsync<Dictionary<string, object>>("flash.playUrl", recordings[index]);
+        // Plays back a blob on an HTML media element (see util.js in this project)
+        JSRuntime.InvokeAsync<Dictionary<string, object>>("flash.playUrl", urls[index]);
     }
 
     // With the current prompt, update its next playback time and its time interval.
     // Move on to the next prompt.
     async void UpdateCard(bool success)
     {
-        var pair = pairs[currentIndex];
+        var pair = mgr.CurrentPair;
         var nextInfo = await JSRuntime.InvokeAsync<long[]>("flash.nextDate", pair.interval, success);
         pair.interval = (int)nextInfo[0];
         pair.nextDate = nextInfo[1];
 
-        currentIndex = (currentIndex + 1) % pairs.Count;
-        setRecordings();
-    }
-
-    // Read the pair of recordings for the current prompt
-    private async void setRecordings()
-    {
-        var prompts = pairs[currentIndex].prompts;
-        recordings[0] = await getRecording(prompts[0]);
-        recordings[1] = await getRecording(prompts[1]);
-    }
-
-    // Get the audio for one of the prompts. The recording is in the
-    // Firestore blob format, and must be modified in Javascript for
-    // use with the audio tag.
-    private async Task<object> getRecording(Prompt prompt)
-    {
-        var blobData = await fb.GetRecording(user, prompt);
-        var recording = await JSRuntime.InvokeAsync<string>("flash.makeBlob", blobData.blobType, blobData.data);
-        return recording;
+        mgr.NextCard(success);
     }
 }
