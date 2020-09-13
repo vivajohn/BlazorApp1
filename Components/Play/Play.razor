@@ -2,6 +2,7 @@
 @using System.Reactive.Linq;
 @using FlashCommon
 @inject IJSRuntime JSRuntime;
+@inject IDatabase db;
 
 <link href="css/Play.css" rel="stylesheet" />
 
@@ -53,11 +54,11 @@
     {
         if (firstRender)
         {
-            mgr = new PlaybackMgr(Globals.uid);
+            mgr = new PlaybackMgr(Globals.uid, db);
             mgr.Recordings.Subscribe(blobs =>
             {
-                // Formats the blob data for playback on an HTML media element
-                urls[0] = $"data:{blobs[0].blobType};base64,{blobs[0].data.ToBase64()}";
+            // Formats the blob data for playback on an HTML media element
+            urls[0] = $"data:{blobs[0].blobType};base64,{blobs[0].data.ToBase64()}";
                 urls[1] = $"data:{blobs[1].blobType};base64,{blobs[1].data.ToBase64()}";
             });
 

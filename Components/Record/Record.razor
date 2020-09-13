@@ -72,7 +72,7 @@
         base.OnInitialized();
         fb.GetTopics(Globals.uid).Subscribe(topics =>
         {
-            if (topics.Length > 0)
+            if (topics.Count > 0)
             {
                 topic = topics[0];
                 InvokeAsync(() => StateHasChanged());
