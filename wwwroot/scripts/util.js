@@ -1,9 +1,5 @@
 ﻿
 window.flash = {
-    interopTest: function() {
-        return "interop test string";
-    },
-
     makeBlob: function (blobType, data) {
         let arr = Uint8Array.from(data);
         return URL.createObjectURL(new Blob([arr], { type: blobType }));
@@ -108,5 +104,36 @@ class PlayerService {
         //return s;
     }
 }
+
+// Sign in using the FirebaseUI widget and return the user's id.
+function firebaseLogin(subject) {
+    var config = {
+        apiKey: "AIzaSyD-ltgjShfgOcmtIfBxSj9avhxtm1jNvpU",
+        authDomain: "flashdev-69399.firebaseapp.com",
+        databaseURL: "https://flashdev-69399.firebaseio.com",
+        projectId: "flashdev-69399",
+        storageBucket: "flashdev-69399.appspot.com",
+        messagingSenderId: "297825270138"
+    };
+    firebase.initializeApp(config);
+
+    var ui = new firebaseui.auth.AuthUI(firebase.auth());
+    ui.start('#firebaseui-auth-container', {
+        callbacks: {
+            signInSuccessWithAuthResult: function (authResult, redirectUrl) {
+                // User successfully signed in. Notify the Blazor code.
+                subject.invokeMethodAsync('OnNext',
+                    JSON.stringify({ uid: authResult.user.uid }));
+
+                // Return false and let the Blazor code take care of the navigation
+                return false;
+            },
+        },
+        signInOptions: [
+            firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+            firebase.auth.EmailAuthProvider.PROVIDER_ID
+        ],
+    });
+};
 
 
