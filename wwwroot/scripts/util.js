@@ -107,15 +107,15 @@ class PlayerService {
 
 // Sign in using the FirebaseUI widget and return the user's id.
 function firebaseLogin(subject) {
-    var config = {
-        apiKey: "AIzaSyD-ltgjShfgOcmtIfBxSj9avhxtm1jNvpU",
-        authDomain: "flashdev-69399.firebaseapp.com",
-        databaseURL: "https://flashdev-69399.firebaseio.com",
-        projectId: "flashdev-69399",
-        storageBucket: "flashdev-69399.appspot.com",
-        messagingSenderId: "297825270138"
-    };
-    firebase.initializeApp(config);
+    //var config = {
+    //    apiKey: "AIzaSyBLHFfWW4nYLcsMDhqunFcnsurz0ScRxfk",
+    //    authDomain: "flashdev-69399.firebaseapp.com",
+    //    databaseURL: "https://flashdev-69399.firebaseio.com",
+    //    projectId: "flashdev-69399",
+    //    storageBucket: "flashdev-69399.appspot.com",
+    //    messagingSenderId: "297825270138"
+    //};
+    firebase.initializeApp(firebaseConfig());
 
     var ui = new firebaseui.auth.AuthUI(firebase.auth());
     ui.start('#firebaseui-auth-container', {
