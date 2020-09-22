@@ -1,9 +1,13 @@
-﻿
+﻿@using FlashCommon
+@using System.Reactive.Linq;
+@inject IDynamicDB ddb;
+
 <link href="css/Navbar.css" rel="stylesheet" />
 
 <div class="navbar">
     <div class="rowfullcenter">
-        <RoundButton Icon="settings"></RoundButton>
+        <RoundButton Icon="toggle_on" Click="@ToggleDb"></RoundButton>
+        <div class="dbname">@DbName</div>
         @LeftContent
     </div>
     <div class="rowfullcenter">
@@ -21,4 +25,24 @@
     public RenderFragment MiddleContent { get; set; }
     [Parameter]
     public RenderFragment RightContent { get; set; }
+
+    string DbName;
+
+    protected override Task OnInitializedAsync()
+    {
+        ddb.CurrentDB.Subscribe(db =>
+        {
+            DbName = db.Name;
+            InvokeAsync(() => StateHasChanged());
+        });
+        return base.OnInitializedAsync();
+    }
+
+    public void ToggleDb()
+    {
+        ddb.CurrentDB.Take(1).Subscribe(db =>
+        {
+            DBChange.To(db.Name == DBNames.Azure.ToString() ? DBNames.Firebase : DBNames.Azure);
+        });
+    }
 }

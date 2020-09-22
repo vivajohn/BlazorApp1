@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BlazorApp1.Shared;
 using FlashCommon;
+using Google;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
@@ -10,6 +12,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Secrets;
 
 namespace BlazorApp1
 {
@@ -17,6 +20,9 @@ namespace BlazorApp1
     {
         public Startup(IConfiguration configuration)
         {
+            Cosmos.Endpoint = Secret.Endpoint;
+            Cosmos.AuthKey = Secret.AuthKey;
+
             Configuration = configuration;
         }
 
@@ -26,7 +32,9 @@ namespace BlazorApp1
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IDatabase, FirebaseService>();
+            services.AddSingleton<IFirebase, FirebaseService>();
+            services.AddSingleton<IAzure, AzureService>();
+            services.AddSingleton<IDynamicDB, DynamicDB>();
 
             services.AddRazorPages();
             services.AddServerSideBlazor();
@@ -56,6 +64,12 @@ namespace BlazorApp1
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
             });
+
+            ServiceLocator.Init(app.ApplicationServices);
+
+            // Initialize the app to use the Firebase database
+            var ddb = app.ApplicationServices.GetService<IDynamicDB>();
+            ddb.SetCurrentDB(app.ApplicationServices.GetService<IFirebase>());
         }
     }
 }

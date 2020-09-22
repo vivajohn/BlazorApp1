@@ -5,7 +5,7 @@
 @using BlazorApp1.Components.PairsPanel
 @using BlazorApp1.Components.Navbar
 @using FlashCommon
-@inject IDatabase fb;
+@inject IDynamicDB ddb;
 
 <link href="css/Record.css" rel="stylesheet" />
 
@@ -70,13 +70,18 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        fb.GetTopics(Globals.uid).Subscribe(topics =>
-        {
-            if (topics.Count > 0)
+        ddb.CurrentDB.Subscribe(db => {
+            idOpen = -1;
+            topic = null;
+            InvokeAsync(() => StateHasChanged());
+            db.GetTopics(Globals.uid).Subscribe(topics =>
             {
-                topic = topics[0];
-                InvokeAsync(() => StateHasChanged());
-            }
+                if (topics.Count > 0)
+                {
+                    topic = topics[0];
+                    InvokeAsync(() => StateHasChanged());
+                }
+            });
         });
     }
 
@@ -86,11 +91,11 @@
         {
             idOpen = deck.id;
         }
-        if (deck.numPairs > 0 && deck.groups == null)
+        if (deck.groups == null)
         {
-            fb.GetPairs(Globals.uid, deck).Subscribe(pairs =>
+            ddb.CurrentDB.Subscribe(db =>
             {
-                InvokeAsync(() => StateHasChanged());
+                db.GetPairs(Globals.uid, deck).Subscribe(pairs => InvokeAsync(() => StateHasChanged()));
             });
         }
     }

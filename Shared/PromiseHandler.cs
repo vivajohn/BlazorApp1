@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace BlazorApp1.Shared
 {
-    // This is used for getting asynchronous result from javacript code.
+    // This is used for getting asynchronous results from javacript code.
     // The js code calls OnNext which then triggers an observable object.
     public class PromiseHandler<T>
     {

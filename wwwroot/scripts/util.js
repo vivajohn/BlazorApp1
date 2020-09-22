@@ -107,14 +107,6 @@ class PlayerService {
 
 // Sign in using the FirebaseUI widget and return the user's id.
 function firebaseLogin(subject) {
-    //var config = {
-    //    apiKey: "AIzaSyBLHFfWW4nYLcsMDhqunFcnsurz0ScRxfk",
-    //    authDomain: "flashdev-69399.firebaseapp.com",
-    //    databaseURL: "https://flashdev-69399.firebaseio.com",
-    //    projectId: "flashdev-69399",
-    //    storageBucket: "flashdev-69399.appspot.com",
-    //    messagingSenderId: "297825270138"
-    //};
     firebase.initializeApp(firebaseConfig());
 
     var ui = new firebaseui.auth.AuthUI(firebase.auth());
@@ -135,5 +127,11 @@ function firebaseLogin(subject) {
         ],
     });
 };
+
+// MatIconButton visual feedback doesn't return to a normal style, so this fixes the problem. 
+function loseFocus() {
+    document.activeElement.blur();
+}
+
 
 

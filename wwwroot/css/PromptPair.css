@@ -7,7 +7,7 @@
 .indent {
   margin-left: 20px; }
 
-.row, .rowfull, .rowfullcenter {
+.row, .rowfull, .rowfullcenter, .promptpair .col2 .buttons {
   display: flex;
   flex-direction: row; }
 
@@ -23,3 +23,21 @@
 
 .colfull {
   justify-content: space-between; }
+
+.promptpair {
+  background: white;
+  display: grid;
+  grid-template-columns: min-content auto;
+  grid-template-rows: auto auto;
+  grid-row-gap: 10px; }
+  .promptpair .col1 {
+    grid-column-start: 1; }
+  .promptpair .col2 {
+    grid-column-start: 2; }
+    .promptpair .col2 .text {
+      background: white;
+      width: 100%; }
+    .promptpair .col2 .buttons {
+      padding: 10px 0 10px 0; }
+      .promptpair .col2 .buttons .button {
+        margin-right: 10px; }

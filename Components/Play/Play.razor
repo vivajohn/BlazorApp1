@@ -2,7 +2,7 @@
 @using System.Reactive.Linq;
 @using FlashCommon
 @inject IJSRuntime JSRuntime;
-@inject IDatabase db;
+@inject IDynamicDB ddb;
 
 <link href="css/Play.css" rel="stylesheet" />
 
@@ -15,7 +15,7 @@
                 Mid
             </MiddleContent>*@
         <RightContent>
-            <a href="/record" class="navlink">
+            <a href="/recorder" class="navlink">
                 <RoundButton Icon="mic"></RoundButton>
             </a>
         </RightContent>
@@ -54,12 +54,15 @@
     {
         if (firstRender)
         {
-            mgr = new PlaybackMgr(Globals.uid, db);
-            mgr.Recordings.Subscribe(blobs =>
+            ddb.CurrentDB.Subscribe(db =>
             {
-                // Formats the blob data for playback on an HTML media element
-                urls[0] = $"data:{blobs[0].blobType};base64,{blobs[0].data.ToBase64()}";
-                urls[1] = $"data:{blobs[1].blobType};base64,{blobs[1].data.ToBase64()}";
+                mgr = new PlaybackMgr(Globals.uid, db);
+                mgr.Recordings.Subscribe(blobs =>
+                {
+                    // Formats the blob data for playback on an HTML media element
+                    urls[0] = $"data:{blobs[0].blobType};base64,{blobs[0].data.ToBase64()}";
+                    urls[1] = $"data:{blobs[1].blobType};base64,{blobs[1].data.ToBase64()}";
+                });
             });
 
             StateHasChanged();

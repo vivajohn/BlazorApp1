@@ -2,12 +2,43 @@
 
 <link href="css/PromptPair.css" rel="stylesheet" />
 
-<div class="colfull">
-    <MatTextField Value=@Pair.prompts[0]?.text Label="Prompt..."></MatTextField>
-    <MatTextField Value=@Pair.prompts[1]?.text Label="Response..."></MatTextField>
+<div class="promptpair">
+    <div class="col1">
+        <RoundButton Icon="play_arrow" Click="@(() => PlayPrompt(0))" Disabled="@(Pair.prompts[0].id == 0)"></RoundButton>
+    </div>
+    <div class="col2">
+        <MatTextField Value=@Pair.prompts[0]?.text Label="Prompt..." Class="text"></MatTextField>
+        <div class="buttons">
+            <div class="button"><RoundButton Icon="mic" Click="@(() => Record(0))"></RoundButton></div>
+            <RoundButton Icon="save" Disabled="@(Pair.prompts[0]?.id == null)"></RoundButton>
+        </div>
+    </div>
+    <div class="col1">
+        <RoundButton Icon="play_arrow" Click="@(() => PlayPrompt(1))" Disabled="@(Pair.prompts[1].id == 0)"></RoundButton>
+    </div>
+    <div class="col2">
+        <MatTextField Value=@Pair.prompts[1]?.text Label="Response..." Class="text"></MatTextField>
+        <div class="buttons">
+            <div class="button"><RoundButton Icon="mic" Click="@(() => Record(1))"></RoundButton></div>
+            <RoundButton Icon="save"></RoundButton>
+        </div>
+    </div>
 </div>
 
 @code {
     [Parameter]
     public PromptResponsePair Pair { get; set; }
+
+    bool dbug = true;
+
+    void PlayPrompt(int index)
+    {
+        // Plays back a blob on an HTML media element (see util.js in this project)
+        //JSRuntime.InvokeAsync<Dictionary<string, object>>("flash.playUrl", urls[index]);
+    }
+
+    void Record(int index)
+    {
+        Pair.prompts[index].id = index + 1;
+    }
 }
