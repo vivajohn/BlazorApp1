@@ -1,4 +1,6 @@
 ﻿@using BlazorApp1.Components.Navbar
+@using System.Text.Json;
+@using System.Reactive.Threading.Tasks;
 @using System.Reactive.Linq;
 @using FlashCommon
 @inject IJSRuntime JSRuntime;
@@ -75,15 +77,23 @@
         JSRuntime.InvokeAsync<Dictionary<string, object>>("flash.playUrl", urls[index]);
     }
 
+
+    // Used by UpdateCard only
+    //private class NextDate { public int index { get; set; } public long date { get; set; }};
+
     // With the current prompt, update its next playback time and its time interval.
     // Move on to the next prompt.
-    async void UpdateCard(bool success)
+    void UpdateCard(bool success)
     {
-        var pair = mgr.CurrentPair;
-        var nextInfo = await JSRuntime.InvokeAsync<long[]>("flash.nextDate", pair.interval, success);
-        pair.interval = (int)nextInfo[0];
-        pair.nextDate = nextInfo[1];
-
+        var dbug = mgr.CurrentPair;
         mgr.NextCard(success);
+        System.Diagnostics.Debug.WriteLine($"{dbug.id}: {dbug.interval}, {dbug.nextDate}");
+        //var pair = mgr.CurrentPair;
+        //var t = JSRuntime.InvokeAsync<NextDate>("Intervals.next", pair.interval, success).AsTask();
+        //t.ToObservable().Subscribe(nextInfo =>
+        //{
+        //    pair.interval = nextInfo.index;
+        //    pair.nextDate = nextInfo.date;
+        //});
     }
 }

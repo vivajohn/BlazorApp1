@@ -5,15 +5,15 @@
 <div id="firebaseui-auth-container"></div>
 
 @code {
-    private class UserId { public string uid; };
+    private class UserId { public string uid { get; set; } };
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             var promise = new PromiseHandler<UserId>();
-            JSRuntime.InvokeAsync<Dictionary<string, object>>("firebaseLogin", DotNetObjectReference.Create(promise));
-            promise.ToObservable().Subscribe((UserId u) =>
+            JSRuntime.InvokeAsync<UserId>("firebaseLogin", DotNetObjectReference.Create(promise));
+            promise.ToObservable().Subscribe(u =>
             {
                 Globals.uid = u.uid;
                 navMgr.NavigateTo("/player");
