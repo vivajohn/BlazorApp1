@@ -31,3 +31,19 @@
   padding: 0 10px; }
   .navbar .dbname {
     margin-left: 10px; }
+  .navbar-section, .navbar-left, .navbar-middle, .navbar-right {
+    display: flex;
+    align-items: center; }
+  .navbar-left {
+    width: 35%; }
+    .navbar-left > * {
+      margin-right: 12px; }
+  .navbar-middle {
+    justify-content: center; }
+    .navbar-middle > * {
+      margin: 0 6px 0 6px; }
+  .navbar-right {
+    width: 35%;
+    justify-content: flex-end; }
+    .navbar-right > * {
+      margin-left: 12px; }

@@ -45,12 +45,9 @@
             @if (!IsLoading && urls == null)
             {
         <div class="play-panel-empty">
-
             <!-- DO TO: play-panel-icon uses mixin which was made for iconbutton not maticon -->
-
             <MatIcon Icon="mic"></MatIcon>
             <span>Make some recordings...</span>
-            <MatIcon Icon="mic"></MatIcon>
         </div>
             }
             @if (NextTime.HasValue)
@@ -58,7 +55,6 @@
                 <div class="play-panel-time">
                     <MatIcon Class="play-panel-icon" Icon="timer"></MatIcon>
                     <div>@NextTime.Value.ToString()</div>
-                    <MatIcon Class="play-panel-icon" Icon="timer"></MatIcon>
                 </div>
             }
 
@@ -97,7 +93,7 @@
                     // Formats the blob data for playback on an HTML media element
                     if (blobs == null)
                     {
-                        //Task.Delay(5000).ToObservable().Subscribe(_ => navMgr.NavigateTo("/recorder"));
+                        Task.Delay(3500).ToObservable().Subscribe(_ => navMgr.NavigateTo("/recorder"));
                     }
                     else
                     {

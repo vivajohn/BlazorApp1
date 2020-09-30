@@ -14,14 +14,12 @@
 <link href="css/Record.css" rel="stylesheet" />
 
 <Navbar>
-    <LeftContent>
+    @*<LeftContent>
     </LeftContent>
     <MiddleContent>
-    </MiddleContent>
+    </MiddleContent>*@
     <RightContent>
-        <div class="deckadd">
-            <RoundButton Icon="add" Click="@(() => OnAddDeck())"></RoundButton>
-        </div>
+        <RoundButton Icon="add" Click="@(() => OnAddDeck())"></RoundButton>
         <a href="/player">
             <RoundButton Icon="record_voice_over"></RoundButton>
         </a>
@@ -34,7 +32,7 @@
 
         @foreach (var deck in topic.decks)
         {
-            <MatExpansionPanel Class="outerpanel" ExpandedChanged="@(e => OnDeckOpen(e, deck))">
+            <MatExpansionPanel Class="outerpanel" Expanded="@(idOpen == deck.id)" ExpandedChanged="@(e => OnDeckOpen(e, deck))">
                 <MatExpansionPanelSummary>
                     <div class="header">
                         <div class="header-text" @onclick:stopPropagation="true">
@@ -57,7 +55,7 @@
                     {
                         @foreach (var pair in deck.groups)
                         {
-                            <PairsPanel Pair=@pair Delete="@(e => DeletePair(deck, pair))"></PairsPanel>
+                            <PairsPanel Pair=@pair Delete="@(e => DeletePair(deck, pair))" IsOpen="@(deck.groups.Count == 1)"></PairsPanel>
                         }
                     }
                 </MatExpansionPanelDetails>
@@ -90,6 +88,10 @@
                 if (topics.Count > 0)
                 {
                     topic = topics[0];
+                    if (topic.decks.Count == 1)
+                    {
+                        OnDeckOpen(true, topic.decks[0]);
+                    }
                     InvokeAsync(() => StateHasChanged());
                 }
             });
@@ -113,6 +115,10 @@
         if (open)
         {
             idOpen = deck.id;
+        }
+        else if (idOpen == deck.id)
+        {
+            idOpen = 0;
         }
         if (deck.groups == null)
         {

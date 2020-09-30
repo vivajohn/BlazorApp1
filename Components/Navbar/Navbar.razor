@@ -1,19 +1,24 @@
 ﻿@using FlashCommon
 @using System.Reactive.Linq
 @inject IDynamicDB ddb
+@inject IJSRuntime JSRuntime;
+@inject NavigationManager navMgr;
 
 <link href="css/Navbar.css" rel="stylesheet" />
 
 <div class="navbar">
-    <div class="rowfullcenter">
-        <RoundButton Icon="toggle_on" Click="@ToggleDb"></RoundButton>
-        <div class="dbname">@DbName</div>
+    <div class="navbar-left">
+        <RoundButton Icon="power_settings_new" Click="@LogOff"></RoundButton>
+        <div class="rowfullcenter">
+            <RoundButton Icon="toggle_on" Click="@ToggleDb"></RoundButton>
+            <div class="dbname">@DbName</div>
+        </div>
         @LeftContent
     </div>
-    <div class="rowfullcenter">
+    <div class="navbar-middle">
         @MiddleContent
     </div>
-    <div class="rowfullcenter">
+    <div class="navbar-right">
         @RightContent
     </div>
 </div>
@@ -36,6 +41,11 @@
             InvokeAsync(() => StateHasChanged());
         });
         return base.OnInitializedAsync();
+    }
+
+    public void LogOff()
+    {
+        JSCaller.Call<User>(JSRuntime, "flash.firebaseLogout").Subscribe(u => navMgr.NavigateTo("/"));
     }
 
     public void ToggleDb()

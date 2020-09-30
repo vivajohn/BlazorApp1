@@ -5,14 +5,14 @@
 <link href="css/PairsPanel.css" rel="stylesheet" />
 
 <MatAccordion>
-    <MatExpansionPanel Class="pp-innerpanel" @bind-Expanded="@isOpen">
+    <MatExpansionPanel Class="pp-innerpanel" @bind-Expanded="@IsOpen">
         <MatExpansionPanelSummary>
             <div class="pp-header">
                 <div class="rowfullcenter">
                     @Pair.prompts[0]?.text - @Pair.prompts[1]?.text
                 </div>
             </div>
-            @if (isOpen)
+            @if (IsOpen)
             {
                 <div class="pp-icons">
                     <DeleteButton Delete="@Delete"></DeleteButton>
@@ -34,5 +34,6 @@
     [Parameter]
     public EventCallback Delete { get; set; }
 
-    bool isOpen;
+    [Parameter]
+    public bool IsOpen { get; set; }
 }

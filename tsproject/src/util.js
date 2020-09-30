@@ -8,21 +8,20 @@ window.flash = {
 
   // Sign in using the FirebaseUI widget and return the user's id.
   firebaseLogin: (subject) => {
-    console.log("firebaseLogin");
-    firebase.initializeApp(window.firebaseConfig.get());
-    console.log("after firebaseConfig");
+    if (!flash.fbApp) {
+      flash.fbApp = firebase.initializeApp(window.firebaseConfig.get());
+      flash.fbUi = new firebaseui.auth.AuthUI(firebase.auth());
+    }
 
-    var ui = new firebaseui.auth.AuthUI(firebase.auth());
-    ui.start('#firebaseui-auth-container', {
+    flash.fbUi.start('#firebaseui-auth-container', {
       callbacks: {
         signInSuccessWithAuthResult: function (authResult, redirectUrl) {
-            // User successfully signed in. Notify the Blazor code.
-            subject.invokeMethodAsync('OnNext',
-                JSON.stringify({ uid: authResult.user.uid }));
-        subject.invokeMethodAsync('OnCompleted');
+          // User successfully signed in. Notify the Blazor code.
+          subject.invokeMethodAsync('OnNext', JSON.stringify(authResult.user));
+          subject.invokeMethodAsync('OnCompleted');
 
-            // Return false and let the Blazor code take care of the navigation
-            return false;
+          // Return false and let the Blazor code take care of the navigation
+          return false;
         },
       },
       signInOptions: [
@@ -30,7 +29,16 @@ window.flash = {
           firebase.auth.EmailAuthProvider.PROVIDER_ID
       ],
     });
-  }
+  },
+
+  firebaseLogout: (subject) => {
+    firebase.auth().signOut().then(() => {
+      subject.invokeMethodAsync('OnNext', null);
+      subject.invokeMethodAsync('OnCompleted');
+    }, function (error) {
+      console.error(error);
+    });
+  },
 }
 
 

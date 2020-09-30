@@ -10,5 +10,38 @@
     .dbname {
         margin-left: 10px;
     }
+
+    &-section {
+        display: flex;
+        align-items: center;
+    }
+
+    &-left {
+        @extend .navbar-section;
+        width: 35%;
+
+        > * {
+            margin-right: 12px;
+        }
+    }
+
+    &-middle {
+        @extend .navbar-section;
+        justify-content: center;
+
+        > * {
+            margin: 0 6px 0 6px;
+        }
+    }
+
+    &-right {
+        @extend .navbar-section;
+        width: 35%;
+        justify-content: flex-end;
+
+        > * {
+            margin-left: 12px;
+        }
+    }
 }
 
