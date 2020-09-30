@@ -1,0 +1,28 @@
+{
+  "name": "tsproject",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "tsproject": "index.js"
+  },
+  "dependencies": {
+    "audio-recorder-polyfill": "0.3.8",
+    "ts-loader": "^8.0.4",
+    "typescript": "^4.0.3",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "tsc": "tsc",
+    "tscw": "tsc --watch",
+    "wp": "webpack",
+    "wpw": "webpack --watch",
+    "serve": "http-server build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

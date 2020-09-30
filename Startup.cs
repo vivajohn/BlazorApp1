@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using BlazorApp1.Shared;
@@ -36,6 +37,10 @@ namespace BlazorApp1
             services.AddSingleton<IAzure, AzureService>();
             services.AddSingleton<IDynamicDB, DynamicDB>();
 
+            // This removes the buffer size limit on data passed between Blazor and javascript code.
+            // The limit causes problems when trying to return a blob from javascript.
+            services.AddSignalR(e => e.MaximumReceiveMessageSize = null);
+
             services.AddRazorPages();
             services.AddServerSideBlazor();
         }
@@ -67,9 +72,16 @@ namespace BlazorApp1
 
             ServiceLocator.Init(app.ApplicationServices);
 
+            //var dbug = new AzureAdmin();
+            //dbug.InitBlobs().Subscribe(_ =>
+            //{
+            //    Debug.WriteLine("Blobs initialized");
+            //});
+
             // Initialize the app to use the Firebase database
             var ddb = app.ApplicationServices.GetService<IDynamicDB>();
-            ddb.SetCurrentDB(app.ApplicationServices.GetService<IFirebase>());
+            ddb.SetCurrentDB(app.ApplicationServices.GetService<IAzure>());
+
         }
     }
 }

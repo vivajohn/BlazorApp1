@@ -29,6 +29,10 @@
   },
   {
     "outputFile": "wwwroot/css/RoundButton.css",
-    "inputFile": "Shared/RoundButton/RoundButton.scss"
+    "inputFile": "Components/RoundButton/RoundButton.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/ConfirmDelete.css",
+    "inputFile": "Components/ConfirmDelete/ConfirmDelete.scss"
   }
 ]

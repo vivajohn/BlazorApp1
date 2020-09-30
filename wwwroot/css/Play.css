@@ -1,4 +1,5 @@
-﻿.pointer {
+﻿@import url(../../Css/spinner.css);
+.pointer {
   cursor: pointer; }
 
 .disabled {
@@ -28,6 +29,32 @@
   justify-content: center;
   align-items: center;
   background: black; }
+  .play-panel-icon {
+    padding: 0;
+    height: 36px;
+    width: 36px;
+    border: none;
+    color: white;
+    margin: 0 6px 0 6px; }
+    .play-panel-icon .material-icons {
+      padding: 0;
+      border: none;
+      font-size: 36px;
+      line-height: 36px; }
+  .play-panel-empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 22px;
+    z-index: 1; }
+  .play-panel-time {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 24px;
+    z-index: 1; }
   .play-panel-content {
     align-items: center;
     justify-content: center;
@@ -47,6 +74,15 @@
       .play-panel-content-circle img {
         transform: rotate(-20deg);
         margin: 20px; }
+      .play-panel-content-circle-spin {
+        display: inline-block;
+        animation: rotation 1s infinite linear; }
+
+@keyframes rotation {
+  50% {
+    transform: rotate(40deg); }
+  50% {
+    transform: rotate(-40deg); } }
     .play-panel-content-buttons {
       justify-content: space-between;
       align-items: center;

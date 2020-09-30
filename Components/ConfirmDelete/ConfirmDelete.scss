@@ -1,0 +1,33 @@
+﻿@import '../../Css/common.scss';
+
+.condel {
+    $size: 54px;
+    $color: black;
+
+    &-content {
+        @extend .rowfull;
+        justify-content: center;
+        align-items: center;
+
+        span {
+            margin-left: 5px;
+            font-size: $size;
+            color: black;
+        }
+
+        &-icon {
+            @include flashicon($size, $color);
+        }
+    }
+
+    &-actions {
+        @extend .rowfull;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+
+        > * {
+            margin: 0 15px 10px 15px;
+        }
+    }
+}

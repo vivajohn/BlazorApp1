@@ -1,6 +1,8 @@
 ﻿@import '../../Css/common.scss';
+@import '../../Css/spinner.css';
 
 $back-size: 340px;
+$rotate: 20deg;
 
 .play {
     &-panel {
@@ -8,6 +10,29 @@ $back-size: 340px;
         justify-content: center;
         align-items: center;
         background: black;
+
+        &-icon {
+            @include flashicon(36px, white);
+            margin: 0 6px 0 6px;
+        }
+
+        &-empty {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 22px;
+            z-index: 1;
+        }
+
+        &-time {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            z-index: 1;
+        }
 
         &-content {
             @extend .col;
@@ -29,8 +54,23 @@ $back-size: 340px;
                 margin-top: -10px;
 
                 img {
-                    transform: rotate(-20deg);
+                    transform: rotate(-$rotate);
                     margin: 20px;
+                }
+
+                &-spin {
+                    display: inline-block;
+                    animation: rotation 1s infinite linear;
+                }
+
+                @keyframes rotation {
+                    50% {
+                        transform: rotate($rotate * 2);
+                    }
+
+                    50% {
+                        transform: rotate(-$rotate * 2);
+                    }
                 }
             }
 

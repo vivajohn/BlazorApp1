@@ -1,0 +1,43 @@
+﻿@import '../../Css/common.scss';
+
+.roundbtn {
+    $big-outer: 54px;
+    $big-inner: $big-outer * 0.6;
+    $small-outer: 40px;
+    $small-inner: $small-outer * 0.6;
+
+    &-background {
+        background: $gold;
+        border-color: transparent;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: black;
+    }
+
+    &-big {
+        @extend .roundbtn-background;
+        height: $big-outer;
+        width: $big-outer
+    }
+
+    &-small {
+        @extend .roundbtn-background;
+        height: $small-outer;
+        width: $small-outer
+    }
+
+    &-smallicon {
+        @include flashicon($small-inner);
+    }
+
+    &-bigicon {
+        @include flashicon($big-inner);
+    }
+
+}
+
+a {
+    text-decoration: none !important;
+}

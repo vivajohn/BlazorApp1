@@ -14,6 +14,7 @@
   ],
   "exclude": [
     "node_modules",
+    "Typescript",
     "out"
   ],
   "compileOnSave": true,

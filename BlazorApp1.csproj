@@ -2,30 +2,29 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-	    
-    <BlazorLinkOnBuild>false</BlazorLinkOnBuild>
-    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
-    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
-    <DefaultItemExcludes>${DefaultItemExcludes};dist\**;node_modules\**</DefaultItemExcludes>
-    <NoWarn>CS2008</NoWarn>
-
-    <!--VS's FastUpToDateCheck doesn't consider .ts file changes, so it's necessary to disable it to get incremental builds to work correctly (albeit not as fast as if FastUpToDateCheck did work for them)-->
-    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
-
+    <UserSecretsId>bd2e8430-4800-4800-bedf-bc403aab75f2</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <Content Remove="compilerconfig.json" />
-    <Content Remove="package.json" />
+    <!-- Content Remove="wwwroot\scripts\main-bundle.js" / -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="tsproject\src\secret.js" />
+    <None Remove="tsproject\src\util.js" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Css\common.scss" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="compilerconfig.json" />
-    <None Include="package.json" />
+    <Content Include="tsproject\src\secret.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="tsproject\src\util.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -37,34 +36,25 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.3" />
     <PackageReference Include="System.Reactive" Version="4.4.1" />
-	<WebpackInputs Include="**\*.ts" Exclude="dist\**;node_modules\**; **\*.d.ts" />
   </ItemGroup>
 
   <ItemGroup>
-    <WebpackInputs Remove="Typescript\main.ts" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <Folder Include="out\" />
     <Folder Include="Screenshots\" />
+    <Folder Include="tsproject\bin\" />
     <Folder Include="wwwroot\assets\" />
   </ItemGroup>
+
+  <!-- ItemGroup>
+    <None Include="wwwroot\scripts\main-bundle.js" />
+  </ItemGroup -->
 
   <ItemGroup>
     <ProjectReference Include="..\FlashCommon\FlashCommon\FlashCommon.csproj" />
   </ItemGroup>
-  
-  <Target Name="EnsureNpmRestored" Condition="!Exists('node_modules')">
-    <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
-    <Exec Command="npm install" />
-  </Target>
 
-  <Target Name="RunWebpack" AfterTargets="ResolveReferences" Inputs="@(WebpackInputs)" Outputs="dist\flash.js" DependsOnTargets="EnsureNpmRestored">
-    <RemoveDir Directories="dist" />
-    <Exec Command="npm run build:debug" Condition="'$(Configuration)' == 'Debug'" />
-     <Exec Command="npm run build:production" Condition="'$(Configuration)' != 'Debug'" />
-    <ItemGroup>
-      <EmbeddedResource Include="dist\**\*.js" LogicalName="blazor:js:%(RecursiveDir)%(Filename)%(Extension)" />
-    </ItemGroup>
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="call tsbuild.bat" />
   </Target>
 
 </Project>

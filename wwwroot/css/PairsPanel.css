@@ -24,16 +24,16 @@
 .colfull {
   justify-content: space-between; }
 
-.innerpanel {
-  margin-bottom: 15px !important; }
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  width: 100%; }
-
-.icons {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding-right: 20px; }
+.pp {
+  position: relative; }
+  .pp-innerpanel {
+    margin-bottom: 15px !important; }
+  .pp-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%; }
+  .pp-icons {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-right: 20px; }

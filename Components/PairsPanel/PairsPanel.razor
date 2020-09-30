@@ -1,25 +1,26 @@
 ﻿@using FlashCommon
 @using BlazorApp1.Components.PromptPair
+@using BlazorApp1.Components.DeleteButton
 
 <link href="css/PairsPanel.css" rel="stylesheet" />
 
 <MatAccordion>
-    <MatExpansionPanel Class="innerpanel" @bind-Expanded="@isOpen">
-        <MatExpansionPanelSummary class="summary">
-            <div class="header">
+    <MatExpansionPanel Class="pp-innerpanel" @bind-Expanded="@isOpen">
+        <MatExpansionPanelSummary>
+            <div class="pp-header">
                 <div class="rowfullcenter">
                     @Pair.prompts[0]?.text - @Pair.prompts[1]?.text
                 </div>
             </div>
             @if (isOpen)
             {
-                <div class="icons">
-                    <RoundButton Icon="delete"></RoundButton>
+                <div class="pp-icons">
+                    <DeleteButton Delete="@Delete"></DeleteButton>
                 </div>
             }
         </MatExpansionPanelSummary>
-        <MatExpansionPanelDetails class="details">
-            <PromptPair Pair=@Pair></PromptPair>
+        <MatExpansionPanelDetails>
+            <PromptPair Pair=@Pair TextChanged="@(() => StateHasChanged())"></PromptPair>
         </MatExpansionPanelDetails>
 
     </MatExpansionPanel>
@@ -29,6 +30,9 @@
 @code {
     [Parameter]
     public PromptResponsePair Pair { get; set; }
+
+    [Parameter]
+    public EventCallback Delete { get; set; }
 
     bool isOpen;
 }

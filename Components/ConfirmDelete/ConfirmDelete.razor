@@ -1,0 +1,40 @@
+﻿@using System.Reactive.Subjects;
+
+<link href="css/ConfirmDelete.css" rel="stylesheet" />
+
+<MatDialog IsOpen="@IsOpen">
+    @*<MatDialogTitle>Confirm</MatDialogTitle>*@
+    <MatDialogContent>
+        <div class="condel-content">
+            <MatIconButton Class="condel-content-icon" Icon="delete"></MatIconButton>
+            <span>?</span>
+        </div>
+    </MatDialogContent>
+    <MatDialogActions>
+        <div class="condel-actions">
+            <RoundButton Icon="done" Big="true" Click="@(() => OnClick(true))"></RoundButton>
+            <RoundButton Icon="clear" Big="true" Click="@(() => OnClick(false))"></RoundButton>
+        </div>
+    </MatDialogActions>
+</MatDialog>
+
+@code {
+    bool IsOpen = false;
+    AsyncSubject<bool> result;
+
+    void OnClick(bool answer)
+    {
+        IsOpen = false;
+        StateHasChanged();
+        result.OnNext(answer);
+        result.OnCompleted();
+    }
+
+    public AsyncSubject<bool> Open()
+    {
+        IsOpen = true;
+        StateHasChanged();
+        result = new AsyncSubject<bool>();
+        return result;
+    }
+}

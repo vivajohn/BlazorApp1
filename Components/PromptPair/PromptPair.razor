@@ -1,42 +1,167 @@
 ﻿@using FlashCommon
+@using System.Reactive;
+@using System.Reactive.Linq;
+@using System.Reactive.Subjects;
+@inject IJSRuntime JSRuntime;
+@inject IDynamicDB ddb;
+
 
 <link href="css/PromptPair.css" rel="stylesheet" />
 
 <div class="promptpair">
     <div class="col1">
-        <RoundButton Icon="play_arrow" Click="@(() => PlayPrompt(0))" Disabled="@(Pair.prompts[0].id == 0)"></RoundButton>
+        <RoundButton Icon="play_arrow" Click="@(() => PlayPrompt(0))" Disabled="@(urls[0] == null)"></RoundButton>
     </div>
     <div class="col2">
-        <MatTextField Value=@Pair.prompts[0]?.text Label="Prompt..." Class="text"></MatTextField>
+        <MatTextField Value=@Pair.prompts[0].text Label="Prompt..." Class="text" OnInput="@(e => NewText(e, 0))"></MatTextField>
         <div class="buttons">
-            <div class="button"><RoundButton Icon="mic" Click="@(() => Record(0))"></RoundButton></div>
-            <RoundButton Icon="save" Disabled="@(Pair.prompts[0]?.id == null)"></RoundButton>
+            @if (IsRecording[0])
+            {
+                <div class="button"><RoundButton Icon="stop" Click="@(() => Stop(0))"></RoundButton></div>
+            }
+            else
+            {
+                <div class="button"><RoundButton Icon="mic" Click="@(() => Record(0))"></RoundButton></div>
+            }
+            <RoundButton Icon="save" Disabled="@(blobs[0] == null)" Click="@(() => Save(0))"></RoundButton>
         </div>
     </div>
+
     <div class="col1">
-        <RoundButton Icon="play_arrow" Click="@(() => PlayPrompt(1))" Disabled="@(Pair.prompts[1].id == 0)"></RoundButton>
+        <RoundButton Icon="play_arrow" Click="@(() => PlayPrompt(1))" Disabled="@(urls[1] == null)"></RoundButton>
     </div>
     <div class="col2">
-        <MatTextField Value=@Pair.prompts[1]?.text Label="Response..." Class="text"></MatTextField>
+        <MatTextField Value=@Pair.prompts[1].text Label="Response..." Class="text" OnInput="@(e => NewText(e, 1))"></MatTextField>
         <div class="buttons">
-            <div class="button"><RoundButton Icon="mic" Click="@(() => Record(1))"></RoundButton></div>
-            <RoundButton Icon="save"></RoundButton>
+            @if (IsRecording[1])
+            {
+                <div class="button"><RoundButton Icon="stop" Click="@(() => Stop(1))"></RoundButton></div>
+            }
+            else
+            {
+                <div class="button"><RoundButton Icon="mic" Click="@(() => Record(1))"></RoundButton></div>
+            }
+            <RoundButton Icon="save" Disabled="@(blobs[1] == null)" Click="@(() => Save(1))"></RoundButton>
         </div>
     </div>
 </div>
 
 @code {
     [Parameter]
-    public PromptResponsePair Pair { get; set; }
+    public EventCallback TextChanged { get; set; }
+
+    [Parameter]
+    public PromptResponsePair Pair
+    {
+        get { return _pair; }
+        set
+        {
+            if (_pair != value)
+            {
+                _pair = value;
+                GetRecordings();
+            }
+        }
+    }
+    private PromptResponsePair _pair;
+
+    private bool[] IsRecording = new bool[] { false, false };
+    private bool IsPlaying = false;
+    private string[] urls = new string[2];
+    private FirestoreBlob[] blobs = new FirestoreBlob[2];
+    private ReplaySubject<string> oText = new ReplaySubject<string>(0);
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        oText.Throttle(new TimeSpan(0, 0, 0, 1)).Subscribe(text =>
+        {
+            System.Diagnostics.Debug.WriteLine($"Throttle: {Pair.prompts[0].text}, {Pair.prompts[1].text} ");
+            ddb.CurrentDB.Subscribe(db => db.SavePromptPair(Pair));
+        });
+    }
+
+    void NewText(ChangeEventArgs e, int index)
+    {
+        Pair.prompts[index].text = e.Value.ToString();
+        System.Diagnostics.Debug.WriteLine("NewText " + e.Value.ToString());
+        oText.OnNext(e.Value.ToString());
+        TextChanged.InvokeAsync(index);
+    }
 
     void PlayPrompt(int index)
     {
         // Plays back a blob on an HTML media element (see util.js in this project)
-        //JSRuntime.InvokeAsync<Dictionary<string, object>>("flash.playUrl", urls[index]);
+        JSCaller.Call<Unit>(JSRuntime, "PlayerService.playUrl", urls[index]).Subscribe(u =>
+        {
+            System.Diagnostics.Debug.WriteLine("End playing");
+            this.IsPlaying = false;
+            InvokeAsync(() => StateHasChanged());
+        });
     }
+
+
+    private class Recording { public string blob64 { get; set; } public string url { get; set; } public string type { get; set; } };
 
     void Record(int index)
     {
-        Pair.prompts[index].id = index + 1;
+        this.IsRecording[index] = true;
+        JSCaller.Call<Recording>(JSRuntime, "PlayerService.record").Subscribe(rec =>
+        {
+            System.Diagnostics.Debug.WriteLine("End recording");
+            urls[index] = rec.url;
+            blobs[index] = new FirestoreBlob(rec.type, rec.blob64);
+            this.IsRecording[index] = false;
+            InvokeAsync(() => StateHasChanged());
+        });
+
     }
+
+    void Stop(int index)
+    {
+        JSRuntime.InvokeAsync<Unit>("PlayerService.stopRecording", null);
+        this.IsRecording[index] = false;
+        StateHasChanged();
+    }
+
+    void Save(int index)
+    {
+        ddb.CurrentDB.Subscribe(db =>
+        {
+            if (Pair.prompts[index].id == 0)
+            {
+                Pair.prompts[index].id = JSTime.Now;
+                Pair.isActive = Pair.prompts[0].id > 0 && Pair.prompts[1].id > 0;
+                db.SavePromptPair(Pair).Subscribe();
+            }
+            db.SaveRecording(Pair.uid, Pair.prompts[index], blobs[index]).Subscribe(_ =>
+            {
+                blobs[index] = null;
+                InvokeAsync(() => StateHasChanged());
+            });
+        });
+    }
+
+    private void GetRecordings()
+    {
+        ddb.CurrentDB.Subscribe(db =>
+        {
+            for (int i = 0; i < Pair.prompts.Count; i++)
+            {
+                var prompt = Pair.prompts[i];
+                if (prompt.id > 0)
+                {
+                    // We save the index because GetRecording is async and the counter
+                    // will be out of range by time the result arrives.
+                    int index = i;
+                    db.GetRecording(Pair.uid, prompt).Subscribe(b =>
+                    {
+                        urls[index] = $"data:{b.blobType};base64,{b.data64}";
+                        InvokeAsync(() => StateHasChanged());
+                    });
+                }
+            }
+        });
+    }
+
 }

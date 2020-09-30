@@ -1,0 +1,22 @@
+﻿@using BlazorApp1.Components.ConfirmDelete
+@using System.Reactive.Linq;
+
+<RoundButton Icon="delete" Disabled="@Disabled" Click="@OnDelete"></RoundButton>
+<ConfirmDelete @ref="dlg"></ConfirmDelete>
+
+@code {
+    [Parameter]
+    public EventCallback Delete { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+
+    ConfirmDelete dlg;
+
+    void OnDelete()
+    {
+        // Open the confirmation dialog and raise the Delete event if the user responds positively
+        dlg.Open().Where(b => b).Subscribe(_ => Delete.InvokeAsync(true));
+    }
+
+}

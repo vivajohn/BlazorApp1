@@ -1,5 +1,9 @@
 ﻿@import '../../Css/common.scss';
 
+.deckadd {
+    margin-right: 6px;
+}
+
 .outerpanel {
     box-shadow: none !important;
     background-color: $light-backcolor !important;
@@ -9,7 +13,17 @@
 .header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     width: 100%;
+
+    &-text {
+        // The MatBlazor text component contains a label which is not vertically centered
+        label {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+    }
 }
 
 .icons {

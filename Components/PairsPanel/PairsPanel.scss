@@ -1,23 +1,24 @@
 ﻿@import '../../Css/common.scss';
 
-.innerpanel {
-    margin-bottom: 15px !important;
-}
+.pp {
+    position: relative;
 
-.header {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-}
+    &-innerpanel {
+        margin-bottom: 15px !important;
+    }
 
-.summary {
-}
+    &-header {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+    }
 
-.icons {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding-right: 20px;
+    &-icons {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding-right: 20px;
+    }
 }
 
 

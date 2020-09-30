@@ -24,7 +24,7 @@
 .colfull {
   justify-content: space-between; }
 
-.round {
+.roundbtn-background, .roundbtn-big, .roundbtn-small {
   background: #ffeb3b;
   border-color: transparent;
   border-radius: 50%;
@@ -33,13 +33,37 @@
   align-items: center;
   color: black; }
 
-.small {
+.roundbtn-big {
+  height: 54px;
+  width: 54px; }
+
+.roundbtn-small {
   height: 40px;
   width: 40px; }
 
-.big {
-  height: 54px;
-  width: 54px; }
+.roundbtn-smallicon {
+  padding: 0;
+  height: 24px;
+  width: 24px;
+  border: none;
+  color: black; }
+  .roundbtn-smallicon .material-icons {
+    padding: 0;
+    border: none;
+    font-size: 24px;
+    line-height: 24px; }
+
+.roundbtn-bigicon {
+  padding: 0;
+  height: 32.4px;
+  width: 32.4px;
+  border: none;
+  color: black; }
+  .roundbtn-bigicon .material-icons {
+    padding: 0;
+    border: none;
+    font-size: 32.4px;
+    line-height: 32.4px; }
 
 a {
   text-decoration: none !important; }

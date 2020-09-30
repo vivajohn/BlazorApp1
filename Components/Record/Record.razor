@@ -4,7 +4,11 @@
 @using Google.Cloud.Firestore
 @using BlazorApp1.Components.PairsPanel
 @using BlazorApp1.Components.Navbar
+@using BlazorApp1.Components.DeleteButton
 @using FlashCommon
+@using System.Reactive;
+@using System.Reactive.Linq;
+@using System.Reactive.Subjects;
 @inject IDynamicDB ddb;
 
 <link href="css/Record.css" rel="stylesheet" />
@@ -15,6 +19,9 @@
     <MiddleContent>
     </MiddleContent>
     <RightContent>
+        <div class="deckadd">
+            <RoundButton Icon="add" Click="@(() => OnAddDeck())"></RoundButton>
+        </div>
         <a href="/player">
             <RoundButton Icon="record_voice_over"></RoundButton>
         </a>
@@ -30,16 +37,18 @@
             <MatExpansionPanel Class="outerpanel" ExpandedChanged="@(e => OnDeckOpen(e, deck))">
                 <MatExpansionPanelSummary>
                     <div class="header">
-                        <div class="rowfullcenter">
-                            @deck.name
+                        <div class="header-text" @onclick:stopPropagation="true">
+                            <MatTextField Value=@deck.name
+                                          Label="@(@String.IsNullOrEmpty(deck.name) ? "Deck name..." : null)"
+                                          OnInput="@(e => TextChanged(e, deck))"></MatTextField>
                         </div>
                     </div>
                     <div class="icons">
-                        @if (idOpen == deck.id)
+                        @if (deck.groups != null && idOpen == deck.id)
                         {
-                            <RoundButton Icon="cloud_upload"></RoundButton>
-                            <RoundButton Icon="delete"></RoundButton>
-                            <RoundButton Icon="add"></RoundButton>
+                            @*<RoundButton Icon="cloud_upload"></RoundButton>*@
+                            <DeleteButton Disabled="@(deck.groups.Count > 0)" Delete="@(() => DeleteDeck(deck))"></DeleteButton>
+                            <RoundButton Icon="add" Click="@(() => OnAddPrompt(deck))"></RoundButton>
                         }
                     </div>
                 </MatExpansionPanelSummary>
@@ -48,7 +57,7 @@
                     {
                         @foreach (var pair in deck.groups)
                         {
-                            <PairsPanel Pair=@pair></PairsPanel>
+                            <PairsPanel Pair=@pair Delete="@(e => DeletePair(deck, pair))"></PairsPanel>
                         }
                     }
                 </MatExpansionPanelDetails>
@@ -61,6 +70,7 @@
 @code {
     Topic topic;
     long idOpen = -1;
+    private ReplaySubject<string> oText = new ReplaySubject<string>(0);
 
     protected override Task OnInitializedAsync()
     {
@@ -70,7 +80,8 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        ddb.CurrentDB.Subscribe(db => {
+        ddb.CurrentDB.Subscribe(db =>
+        {
             idOpen = -1;
             topic = null;
             InvokeAsync(() => StateHasChanged());
@@ -83,6 +94,18 @@
                 }
             });
         });
+        oText.Throttle(new TimeSpan(0, 0, 0, 1)).Subscribe(text =>
+        {
+            System.Diagnostics.Debug.WriteLine($"Throttle: {text}");
+            ddb.CurrentDB.Subscribe(db => db.SaveTopic(topic).Subscribe());
+        });
+    }
+
+    void TextChanged(ChangeEventArgs e, Deck deck)
+    {
+        deck.name = e.Value.ToString();
+        System.Diagnostics.Debug.WriteLine("TextChanged " + e.Value.ToString());
+        oText.OnNext(e.Value.ToString());
     }
 
     void OnDeckOpen(bool open, Deck deck)
@@ -98,5 +121,54 @@
                 db.GetPairs(Globals.uid, deck).Subscribe(pairs => InvokeAsync(() => StateHasChanged()));
             });
         }
+    }
+
+    void OnAddDeck()
+    {
+        ddb.CurrentDB.Subscribe(db =>
+        {
+            topic.AddDeck();
+            db.SaveTopic(topic).Subscribe(_ => InvokeAsync(() => StateHasChanged()));
+        });
+    }
+
+    void OnAddPrompt(Deck deck)
+    {
+        ddb.CurrentDB.Subscribe(db =>
+        {
+            var pair = topic.CreatePromptResponsePair(deck);
+            db.SavePromptPair(pair).Subscribe(_ => InvokeAsync(() => StateHasChanged()));
+        });
+    }
+
+    void DeleteDeck(Deck deck)
+    {
+        ddb.CurrentDB.Subscribe(db =>
+        {
+            topic.decks.Remove(deck);
+            db.SaveTopic(topic).Subscribe(_ => InvokeAsync(() => StateHasChanged()));
+        });
+    }
+
+    void DeletePair(Deck deck, PromptResponsePair pair)
+    {
+        ddb.CurrentDB.Subscribe(db =>
+        {
+            var o = new List<IObservable<Unit>>();
+            o.Add(db.DeletePair(pair));
+            if (pair.prompts[0].id > 0)
+            {
+                o.Add(db.DeleteBlob(pair.uid, pair.prompts[0]));
+            }
+            if (pair.prompts[1].id > 0)
+            {
+                o.Add(db.DeleteBlob(pair.uid, pair.prompts[1]));
+            }
+            Observable.Merge(o).LastAsync().Subscribe(r =>
+            {
+                deck.groups.Remove(pair);
+                InvokeAsync(() => StateHasChanged());
+            });
+        });
     }
 }

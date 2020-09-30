@@ -37,3 +37,20 @@
     justify-content: space-between;
 }
 
+// This sets the size and color of a MatBlazor icon
+@mixin flashicon($size, $color: black) {
+    padding: 0;
+    height: $size;
+    width: $size;
+    border: none;
+    color: $color;
+
+    .material-icons {
+        padding: 0;
+        border: none;
+        font-size: $size;
+        line-height: $size;
+    }
+}
+
+

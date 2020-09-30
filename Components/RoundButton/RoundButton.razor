@@ -4,8 +4,8 @@
 
 <link href="css/RoundButton.css" rel="stylesheet" />
 
-<div class="round @(Big == true ? "big" : "small")">
-    <MatIconButton Disabled=@Disabled @onclick="@OnClick" Icon=@Icon></MatIconButton>
+<div class="roundbtn @(Big == true ? "roundbtn-big" : "roundbtn-small")" @onclick:stopPropagation="true">
+    <MatIconButton Class=@(Big == true ? "roundbtn-bigiconx" : "roundbtn-smalliconx") Disabled=@Disabled Icon=@Icon @onclick="OnClick"></MatIconButton>
 </div>
 
 @code {
@@ -24,6 +24,8 @@
     void OnClick()
     {
         Click.InvokeAsync(null);
-        Task.Delay(250).ToObservable().Subscribe(_ => JSRuntime.InvokeAsync<Unit>("loseFocus", null));
+
+        // Material button does not give proper haptic feedback: this is a workaround
+        Task.Delay(250).ToObservable().Subscribe(_ => JSRuntime.InvokeAsync<Unit>("flash.loseFocus", null));
     }
 }

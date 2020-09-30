@@ -1,8 +1,9 @@
 ﻿@using BlazorApp1.Components.Navbar
-@using System.Text.Json;
-@using System.Reactive.Threading.Tasks;
+@using System.Reactive;
 @using System.Reactive.Linq;
 @using FlashCommon
+@using System.Reactive.Threading.Tasks;
+@inject NavigationManager navMgr;
 @inject IJSRuntime JSRuntime;
 @inject IDynamicDB ddb;
 
@@ -11,10 +12,8 @@
 <div class="play">
     <Navbar>
         @*<LeftContent>
-                <span> Left...</span>
             </LeftContent>
             <MiddleContent>
-                Mid
             </MiddleContent>*@
         <RightContent>
             <a href="/recorder" class="navlink">
@@ -25,21 +24,41 @@
 
     <div class="play-panel">
         <div class="play-panel-content">
-            <div class="play-panel-content-circle">
+            <div class="play-panel-content-circle @(IsLoading ? "play-panel-content-circle-spin" : "")">
                 <img src="assets/voice.svg">
             </div>
 
-            @if (mgr != null && mgr.Recordings != null)
+            @if (urls != null && !NextTime.HasValue)
             {
                 <div class="play-panel-content-buttons">
                     <div class="play-panel-content-buttons-top">
-                        <RoundButton Icon="play_arrow" Big="true" Click="@(() => PlayPrompt(0))"></RoundButton>
-                        <RoundButton Icon="play_arrow" Big="true" Click="@(() => PlayPrompt(1))"></RoundButton>
+                        <RoundButton Icon="play_arrow" Big="true" Disabled="@(IsPlaying || IsLoading)" Click="@(() => PlayPrompt(0))"></RoundButton>
+                        <RoundButton Icon="play_arrow" Big="true" Disabled="@(IsPlaying || IsLoading)" Click="@(() => PlayPrompt(1))"></RoundButton>
                     </div>
                     <div class="play-panel-content-buttons-bottom">
-                        <RoundButton Icon="thumb_down" Big="true" Click="@(() => UpdateCard(false))"></RoundButton>
-                        <RoundButton Icon="thumb_up" Big="true" Click="@(() => UpdateCard(true))"></RoundButton>
+                        <RoundButton Icon="thumb_down" Big="true" Disabled="@(IsPlaying || IsLoading)" Click="@(() => UpdateCard(false))"></RoundButton>
+                        <RoundButton Icon="thumb_up" Big="true" Disabled="@(IsPlaying || IsLoading)" Click="@(() => UpdateCard(true))"></RoundButton>
                     </div>
+
+                </div>
+            }
+            @if (!IsLoading && urls == null)
+            {
+        <div class="play-panel-empty">
+
+            <!-- DO TO: play-panel-icon uses mixin which was made for iconbutton not maticon -->
+
+            <MatIcon Icon="mic"></MatIcon>
+            <span>Make some recordings...</span>
+            <MatIcon Icon="mic"></MatIcon>
+        </div>
+            }
+            @if (NextTime.HasValue)
+            {
+                <div class="play-panel-time">
+                    <MatIcon Class="play-panel-icon" Icon="timer"></MatIcon>
+                    <div>@NextTime.Value.ToString()</div>
+                    <MatIcon Class="play-panel-icon" Icon="timer"></MatIcon>
                 </div>
             }
 
@@ -50,7 +69,16 @@
 
 @code {
     private PlaybackMgr mgr;
-    private string[] urls = new string[2];
+    private string[] urls = null;
+    private bool IsPlaying = false;
+    private bool IsLoading = true;
+    private DateTime? NextTime;
+
+    MatTheme theme1 = new MatTheme()
+    {
+        Primary = "#ffeb3b",
+        Secondary = "transparent"
+    };
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -59,22 +87,42 @@
             ddb.CurrentDB.Subscribe(db =>
             {
                 mgr = new PlaybackMgr(Globals.uid, db);
+                mgr.IsLoading.Subscribe(loading =>
+                {
+                    IsLoading = loading;
+                    InvokeAsync(() => StateHasChanged());
+                });
                 mgr.Recordings.Subscribe(blobs =>
                 {
                     // Formats the blob data for playback on an HTML media element
-                    urls[0] = $"data:{blobs[0].blobType};base64,{blobs[0].data.ToBase64()}";
-                    urls[1] = $"data:{blobs[1].blobType};base64,{blobs[1].data.ToBase64()}";
+                    if (blobs == null)
+                    {
+                        //Task.Delay(5000).ToObservable().Subscribe(_ => navMgr.NavigateTo("/recorder"));
+                    }
+                    else
+                    {
+                        urls = new string[2];
+                        urls[0] = $"data:{blobs[0].blobType};base64,{blobs[0].data64}";
+                        urls[1] = $"data:{blobs[1].blobType};base64,{blobs[1].data64}";
+                    }
+                    NextTime = null;
+                    IsLoading = false;
+                    InvokeAsync(() => StateHasChanged());
                 });
             });
-
-            StateHasChanged();
         }
     }
 
     void PlayPrompt(int index)
     {
-        // Plays back a blob on an HTML media element (see util.js in this project)
-        JSRuntime.InvokeAsync<Dictionary<string, object>>("flash.playUrl", urls[index]);
+        this.IsPlaying = true;
+        // Plays back a blob on an HTML media element
+        JSCaller.Call<Unit>(JSRuntime, "PlayerService.playUrl", urls[index]).Subscribe(u =>
+        {
+            System.Diagnostics.Debug.WriteLine("End playing");
+            this.IsPlaying = false;
+            InvokeAsync(() => StateHasChanged());
+        });
     }
 
 
@@ -85,15 +133,6 @@
     // Move on to the next prompt.
     void UpdateCard(bool success)
     {
-        var dbug = mgr.CurrentPair;
-        mgr.NextCard(success);
-        System.Diagnostics.Debug.WriteLine($"{dbug.id}: {dbug.interval}, {dbug.nextDate}");
-        //var pair = mgr.CurrentPair;
-        //var t = JSRuntime.InvokeAsync<NextDate>("Intervals.next", pair.interval, success).AsTask();
-        //t.ToObservable().Subscribe(nextInfo =>
-        //{
-        //    pair.interval = nextInfo.index;
-        //    pair.nextDate = nextInfo.date;
-        //});
+        NextTime = mgr.NextCard(success);
     }
 }

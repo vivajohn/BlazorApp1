@@ -11,14 +11,12 @@
     {
         if (firstRender)
         {
-            var promise = new PromiseHandler<UserId>();
-            JSRuntime.InvokeAsync<UserId>("firebaseLogin", DotNetObjectReference.Create(promise));
-            promise.ToObservable().Subscribe(u =>
+            JSCaller.Call<UserId>(JSRuntime, "flash.firebaseLogin").Subscribe(u =>
             {
                 Globals.uid = u.uid;
                 navMgr.NavigateTo("/player");
+                //navMgr.NavigateTo("/recorder");
             });
-
         }
         return base.OnAfterRenderAsync(firstRender);
     }
