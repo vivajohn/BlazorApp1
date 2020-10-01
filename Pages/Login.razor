@@ -9,20 +9,23 @@
 <div id="firebaseui-auth-container"></div>
 
 @code {
-    private class FbLogin
-    {
-        public bool isNew { get; set; }
-        public User user { get; set; }
-    };
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
+        // TO DO: look at using .NET authorization to redirect urls
+        //if (ddb.CurrentDB == null)
+        //{
+        //    navMgr.NavigateTo(navMgr.BaseUri);
+        //    return base.OnAfterRenderAsync(firstRender);
+        //}
+
         if (firstRender)
         {
             JSCaller.Call<User>(JSRuntime, "flash.firebaseLogin").Subscribe(u =>
             {
                 Globals.uid = u.uid;
-                ddb.CurrentDB.Subscribe(db =>
+                ddb.Connect();
+                ddb.SingleDB.Subscribe(db =>
                 {
                     db.GetUserInfo(u.uid).Subscribe(info =>
                     {
@@ -50,6 +53,7 @@
     {
         user.accountType = "pro";
         var topic = NewTopic(user.uid);
+        user.currentTopicId = topic.id;
         var o = new IObservable<Unit>[3];
         o[0] = db.AddNewUser(user);
         o[1] = db.SaveTopic(topic);

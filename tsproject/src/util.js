@@ -2,7 +2,6 @@
 window.flash = {
   // MatIconButton visual feedback doesn't return to a normal style, so this fixes the problem. 
   loseFocus: () => {
-    console.log("loseFocus");
     document.activeElement.blur();
   },
 
@@ -33,12 +32,20 @@ window.flash = {
 
   firebaseLogout: (subject) => {
     firebase.auth().signOut().then(() => {
+      //flash.fbApp = undefined;
+      //flash.fbUi = undefined;
       subject.invokeMethodAsync('OnNext', null);
       subject.invokeMethodAsync('OnCompleted');
     }, function (error) {
       console.error(error);
     });
   },
+
+  reload: () => {
+    console.log("reload");
+    location.href = '/';
+  },
+
 }
 
 

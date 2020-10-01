@@ -76,6 +76,17 @@
         Secondary = "transparent"
     };
 
+    protected override void OnInitialized()
+    {
+        // TO DO: look at using .NET authorization to redirect urls
+        if (!ddb.IsConnected)
+        {
+            JSRuntime.InvokeAsync<Unit>("flash.reload", null);
+            return;
+        }
+        base.OnInitialized();
+    }
+
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)

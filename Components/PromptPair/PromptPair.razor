@@ -66,7 +66,6 @@
     private PromptResponsePair _pair;
 
     private bool[] IsRecording = new bool[] { false, false };
-    private bool IsPlaying = false;
     private string[] urls = new string[2];
     private FirestoreBlob[] blobs = new FirestoreBlob[2];
     private ReplaySubject<string> oText = new ReplaySubject<string>(0);
@@ -77,7 +76,7 @@
         oText.Throttle(new TimeSpan(0, 0, 0, 1)).Subscribe(text =>
         {
             System.Diagnostics.Debug.WriteLine($"Throttle: {Pair.prompts[0].text}, {Pair.prompts[1].text} ");
-            ddb.CurrentDB.Subscribe(db => db.SavePromptPair(Pair));
+            ddb.SingleDB.Subscribe(db => db.SavePromptPair(Pair));
         });
     }
 
@@ -94,8 +93,6 @@
         // Plays back a blob on an HTML media element (see util.js in this project)
         JSCaller.Call<Unit>(JSRuntime, "PlayerService.playUrl", urls[index]).Subscribe(u =>
         {
-            System.Diagnostics.Debug.WriteLine("End playing");
-            this.IsPlaying = false;
             InvokeAsync(() => StateHasChanged());
         });
     }
@@ -126,7 +123,7 @@
 
     void Save(int index)
     {
-        ddb.CurrentDB.Subscribe(db =>
+        ddb.SingleDB.Subscribe(db =>
         {
             if (Pair.prompts[index].id == 0)
             {
@@ -134,17 +131,33 @@
                 Pair.isActive = Pair.prompts[0].id > 0 && Pair.prompts[1].id > 0;
                 db.SavePromptPair(Pair).Subscribe();
             }
-            db.SaveRecording(Pair.uid, Pair.prompts[index], blobs[index]).Subscribe(_ =>
+            // Problem writing blob in C#
+            // TO DO: find a better way to do this?
+            if (db.Name == DBNames.Firebase)
             {
-                blobs[index] = null;
-                InvokeAsync(() => StateHasChanged());
-            });
+                JSCaller.Call<Recording>(JSRuntime, "Firebase.saveBlob", Pair.uid, Pair.prompts[index], blobs[index]).Subscribe(rec =>
+                {
+                    System.Diagnostics.Debug.WriteLine("Recording saved");
+                    urls[index] = rec.url;
+                    blobs[index] = new FirestoreBlob(rec.type, rec.blob64);
+                    this.IsRecording[index] = false;
+                    InvokeAsync(() => StateHasChanged());
+                });
+            }
+            else
+            {
+                db.SaveRecording(Pair.uid, Pair.prompts[index], blobs[index]).Subscribe(_ =>
+                {
+                    blobs[index] = null;
+                    InvokeAsync(() => StateHasChanged());
+                });
+            }
         });
     }
 
     private void GetRecordings()
     {
-        ddb.CurrentDB.Subscribe(db =>
+        ddb.SingleDB.Subscribe(db =>
         {
             for (int i = 0; i < Pair.prompts.Count; i++)
             {

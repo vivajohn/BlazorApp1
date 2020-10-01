@@ -10,14 +10,15 @@
 @using System.Reactive.Linq;
 @using System.Reactive.Subjects;
 @inject IDynamicDB ddb;
+@inject IJSRuntime JSRuntime;
 
 <link href="css/Record.css" rel="stylesheet" />
 
 <Navbar>
     @*<LeftContent>
-    </LeftContent>
-    <MiddleContent>
-    </MiddleContent>*@
+        </LeftContent>
+        <MiddleContent>
+        </MiddleContent>*@
     <RightContent>
         <RoundButton Icon="add" Click="@(() => OnAddDeck())"></RoundButton>
         <a href="/player">
@@ -77,6 +78,12 @@
 
     protected override void OnInitialized()
     {
+        // TO DO: look at using .NET authorization to redirect urls
+        if (!ddb.IsConnected)
+        {
+            JSRuntime.InvokeAsync<Unit>("flash.reload", null);
+            return;
+        }
         base.OnInitialized();
         ddb.CurrentDB.Subscribe(db =>
         {
@@ -98,15 +105,13 @@
         });
         oText.Throttle(new TimeSpan(0, 0, 0, 1)).Subscribe(text =>
         {
-            System.Diagnostics.Debug.WriteLine($"Throttle: {text}");
-            ddb.CurrentDB.Subscribe(db => db.SaveTopic(topic).Subscribe());
+            ddb.SingleDB.Subscribe(db => db.SaveTopic(topic).Subscribe());
         });
     }
 
     void TextChanged(ChangeEventArgs e, Deck deck)
     {
         deck.name = e.Value.ToString();
-        System.Diagnostics.Debug.WriteLine("TextChanged " + e.Value.ToString());
         oText.OnNext(e.Value.ToString());
     }
 
@@ -122,7 +127,7 @@
         }
         if (deck.groups == null)
         {
-            ddb.CurrentDB.Subscribe(db =>
+            ddb.SingleDB.Subscribe(db =>
             {
                 db.GetPairs(Globals.uid, deck).Subscribe(pairs => InvokeAsync(() => StateHasChanged()));
             });
@@ -131,7 +136,7 @@
 
     void OnAddDeck()
     {
-        ddb.CurrentDB.Subscribe(db =>
+        ddb.SingleDB.Subscribe(db =>
         {
             topic.AddDeck();
             db.SaveTopic(topic).Subscribe(_ => InvokeAsync(() => StateHasChanged()));
@@ -140,7 +145,7 @@
 
     void OnAddPrompt(Deck deck)
     {
-        ddb.CurrentDB.Subscribe(db =>
+        ddb.SingleDB.Subscribe(db =>
         {
             var pair = topic.CreatePromptResponsePair(deck);
             db.SavePromptPair(pair).Subscribe(_ => InvokeAsync(() => StateHasChanged()));
@@ -149,7 +154,7 @@
 
     void DeleteDeck(Deck deck)
     {
-        ddb.CurrentDB.Subscribe(db =>
+        ddb.SingleDB.Subscribe(db =>
         {
             topic.decks.Remove(deck);
             db.SaveTopic(topic).Subscribe(_ => InvokeAsync(() => StateHasChanged()));
@@ -158,7 +163,7 @@
 
     void DeletePair(Deck deck, PromptResponsePair pair)
     {
-        ddb.CurrentDB.Subscribe(db =>
+        ddb.SingleDB.Subscribe(db =>
         {
             var o = new List<IObservable<Unit>>();
             o.Add(db.DeletePair(pair));

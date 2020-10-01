@@ -80,7 +80,7 @@ namespace BlazorApp1
 
             // Initialize the app to use the Firebase database
             var ddb = app.ApplicationServices.GetService<IDynamicDB>();
-            ddb.SetCurrentDB(app.ApplicationServices.GetService<IAzure>());
+            ddb.SetCurrentDB(() => app.ApplicationServices.GetService<IAzure>());
 
         }
     }

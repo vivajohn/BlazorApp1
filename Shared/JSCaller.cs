@@ -20,7 +20,9 @@ namespace BlazorApp1.Shared
         public static IObservable<T> Call<T>(IJSRuntime runner, string method, params object[] data)
         {
             var promise = new JSAsyncResult<T>();
-            runner.InvokeAsync<JSAsyncResult<T>>(method, DotNetObjectReference.Create(promise), data);
+            var list = new List<object>(data);
+            list.Insert(0, DotNetObjectReference.Create(promise));
+            runner.InvokeAsync<JSAsyncResult<T>>(method, list.ToArray());
             return promise.ToObservable();
         }
     }

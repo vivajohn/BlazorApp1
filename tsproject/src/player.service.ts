@@ -1,11 +1,14 @@
 import AudioRecorder from 'audio-recorder-polyfill';
 import { DotNetSubject } from './DotNetSubject';
+import { Firebase } from './firebase';      // *** DEBUG ***
 
 export class PlayerService {
 
   private readonly maxRecordTime = 20000;
   private timer: any;
   private mediaRecorder: any = null;
+
+  //public urls: { [key: string]: Blob } = {};
 
   public isLoading = false;
   public isPlaying = false;
@@ -99,8 +102,13 @@ export class PlayerService {
         stream.getTracks().forEach((t) => t.stop());
         const blob = new Blob(recordedChunks, { type: recordedChunks[0].type });
         blob.arrayBuffer().then(buffer => {
+          var url = URL.createObjectURL(blob);
+          //this.urls[url] = blob;
+          //const fb = new Firebase();
+          //fb.saveBlob('abcd', blob);
+
           subject.next({
-            url: URL.createObjectURL(blob),
+            url: url,
             type: blob.type,
             blob64: btoa(String.fromCharCode(...new Uint8Array(buffer)))
           });
@@ -118,6 +126,7 @@ export class PlayerService {
 
     return subject;
   }
+
 
   public stopRecording() {
     console.log("Player.stopRecording");

@@ -1,4 +1,5 @@
 ﻿@using FlashCommon
+@using System.Reactive;
 @using System.Reactive.Linq
 @inject IDynamicDB ddb
 @inject IJSRuntime JSRuntime;
@@ -9,10 +10,10 @@
 <div class="navbar">
     <div class="navbar-left">
         <RoundButton Icon="power_settings_new" Click="@LogOff"></RoundButton>
-        <div class="rowfullcenter">
+        @*<div class="rowfullcenter">
             <RoundButton Icon="toggle_on" Click="@ToggleDb"></RoundButton>
             <div class="dbname">@DbName</div>
-        </div>
+        </div>*@
         @LeftContent
     </div>
     <div class="navbar-middle">
@@ -37,22 +38,27 @@
     {
         ddb.CurrentDB.Subscribe(db =>
         {
-            DbName = db.Name;
+            DbName = db.Name.ToString();
             InvokeAsync(() => StateHasChanged());
         });
+
         return base.OnInitializedAsync();
     }
 
     public void LogOff()
     {
-        JSCaller.Call<User>(JSRuntime, "flash.firebaseLogout").Subscribe(u => navMgr.NavigateTo("/"));
+        JSCaller.Call<User>(JSRuntime, "flash.firebaseLogout").Subscribe(u =>
+        {
+            ddb.Disconnect();
+            navMgr.NavigateTo("/");
+        });
     }
 
     public void ToggleDb()
     {
-        ddb.CurrentDB.Take(1).Subscribe(db =>
+        ddb.SingleDB.Subscribe(db =>
         {
-            DBChange.To(db.Name == DBNames.Azure.ToString() ? DBNames.Firebase : DBNames.Azure);
+            DBChange.To(db.Name == DBNames.Azure ? DBNames.Firebase : DBNames.Azure);
         });
     }
 }
