@@ -31,16 +31,17 @@
   background: black; }
   .play-panel-icon {
     padding: 0;
-    height: 36px;
-    width: 36px;
+    height: 30px;
+    width: 30px;
     border: none;
     color: white;
+    font-size: 30px;
     margin: 0 6px 0 6px; }
     .play-panel-icon .material-icons {
       padding: 0;
       border: none;
-      font-size: 36px;
-      line-height: 36px; }
+      font-size: 30px;
+      line-height: 30px; }
   .play-panel-empty {
     display: flex;
     justify-content: center;

@@ -1,6 +1,5 @@
 import AudioRecorder from 'audio-recorder-polyfill';
 import { DotNetSubject } from './DotNetSubject';
-import { Firebase } from './firebase';      // *** DEBUG ***
 
 export class PlayerService {
 

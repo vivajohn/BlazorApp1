@@ -3,6 +3,7 @@
 @using System.Reactive.Linq;
 @using FlashCommon
 @using System.Reactive.Threading.Tasks;
+@implements IDisposable
 @inject NavigationManager navMgr;
 @inject IJSRuntime JSRuntime;
 @inject IDynamicDB ddb;
@@ -44,11 +45,11 @@
             }
             @if (!IsLoading && urls == null)
             {
-        <div class="play-panel-empty">
-            <!-- DO TO: play-panel-icon uses mixin which was made for iconbutton not maticon -->
-            <MatIcon Icon="mic"></MatIcon>
-            <span>Make some recordings...</span>
-        </div>
+                <div class="play-panel-empty">
+                    <!-- DO TO: play-panel-icon uses mixin which was made for iconbutton not maticon -->
+                    <MatIcon Icon="mic" Class="play-panel-icon"></MatIcon>
+                    <span>Make some recordings...</span>
+                </div>
             }
             @if (NextTime.HasValue)
             {
@@ -69,6 +70,7 @@
     private bool IsPlaying = false;
     private bool IsLoading = true;
     private DateTime? NextTime;
+    private IDisposable subscription;
 
     MatTheme theme1 = new MatTheme()
     {
@@ -91,9 +93,12 @@
     {
         if (firstRender)
         {
-            ddb.CurrentDB.Subscribe(db =>
+            subscription = ddb.CurrentDB.Select(db => db).Subscribe(db =>
             {
-                mgr = new PlaybackMgr(Globals.uid, db);
+                IsLoading = true;
+                InvokeAsync(() => StateHasChanged());
+
+                mgr = new PlaybackMgr(db);
                 mgr.IsLoading.Subscribe(loading =>
                 {
                     IsLoading = loading;
@@ -118,6 +123,11 @@
                 });
             });
         }
+    }
+
+    public void Dispose()
+    {
+        subscription.Dispose();
     }
 
     void PlayPrompt(int index)

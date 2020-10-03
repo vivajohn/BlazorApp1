@@ -34,14 +34,14 @@ namespace BlazorApp1.Shared
             obs.OnNext(obj);
         }
 
-        private class xxx { public string blob { get; set; } };
+        //private class xxx { public string blob { get; set; } };
 
-        [JSInvokable]
-        public void Test(string buffer)
-        {
-            var obj = JsonSerializer.Deserialize<xxx>(buffer ?? "{}");
-            Debug.WriteLine("JSAsyncResult.Test");
-        }
+        //[JSInvokable]
+        //public void Test(string buffer)
+        //{
+        //    var obj = JsonSerializer.Deserialize<xxx>(buffer ?? "{}");
+        //    Debug.WriteLine("JSAsyncResult.Test");
+        //}
 
         [JSInvokable]
         public void OnCompleted()

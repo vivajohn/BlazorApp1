@@ -9,31 +9,30 @@
 <div id="firebaseui-auth-container"></div>
 
 @code {
+    private bool isFirstTime = true;
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        // TO DO: look at using .NET authorization to redirect urls
-        //if (ddb.CurrentDB == null)
-        //{
-        //    navMgr.NavigateTo(navMgr.BaseUri);
-        //    return base.OnAfterRenderAsync(firstRender);
-        //}
-
         if (firstRender)
         {
-            JSCaller.Call<User>(JSRuntime, "flash.firebaseLogin").Subscribe(u =>
+            JSCaller.Call<User>(JSRuntime, "flash.firebaseLogin").Subscribe(user =>
             {
-                Globals.uid = u.uid;
                 ddb.Connect();
-                ddb.SingleDB.Subscribe(db =>
+                ddb.CurrentDB.Subscribe(db =>
                 {
-                    db.GetUserInfo(u.uid).Subscribe(info =>
+                    db.GetUserInfo(user.uid).Subscribe(info =>
                     {
                         if (info == null)
                         {
-                            AddNewUser(db, u).Subscribe(_ => Navigate());
+                            AddNewUser(db, user).Subscribe(_ =>
+                            {
+                                db.SetCurrentUserId(user.uid);
+                                Navigate();
+                            });
                             return;
                         }
+
+                        db.SetCurrentUserId(info.uid);
                         Navigate();
                     });
                 });
@@ -45,10 +44,14 @@
 
     private void Navigate()
     {
-        navMgr.NavigateTo("/player");
-        //navMgr.NavigateTo("/recorder");
+        if (!isFirstTime) return;
+        isFirstTime = false;
+        //navMgr.NavigateTo("/player");
+        navMgr.NavigateTo("/recorder");
     }
 
+
+    // Set up data base entries for a new user
     public IObservable<Unit> AddNewUser(IDatabase db, User user)
     {
         user.accountType = "pro";

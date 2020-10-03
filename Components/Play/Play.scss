@@ -12,7 +12,8 @@ $rotate: 20deg;
         background: black;
 
         &-icon {
-            @include flashicon(36px, white);
+            @include flashicon(30px, white);
+            font-size: 30px;
             margin: 0 6px 0 6px;
         }
 

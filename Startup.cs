@@ -13,7 +13,11 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.JSInterop;
 using Secrets;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 
 namespace BlazorApp1
 {
@@ -33,9 +37,9 @@ namespace BlazorApp1
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IFirebase, FirebaseService>();
-            services.AddSingleton<IAzure, AzureService>();
             services.AddSingleton<IDynamicDB, DynamicDB>();
+            services.AddSingleton<IFirebase, FirebaseService>(sp => new FirebaseService(Secret.FirebaseProjectId));
+            services.AddSingleton<IAzure, AzureService>();
 
             // This removes the buffer size limit on data passed between Blazor and javascript code.
             // The limit causes problems when trying to return a blob from javascript.
@@ -78,10 +82,36 @@ namespace BlazorApp1
             //    Debug.WriteLine("Blobs initialized");
             //});
 
-            // Initialize the app to use the Firebase database
+            // Start the app with the Azure database
             var ddb = app.ApplicationServices.GetService<IDynamicDB>();
+            //ddb.SetCurrentDB(() => app.ApplicationServices.GetService<IFirebase>());
             ddb.SetCurrentDB(() => app.ApplicationServices.GetService<IAzure>());
-
         }
+
+        //private DynamicDB InitServices(IServiceCollection services, IServiceProvider sp)
+        //{
+        //    var ddb = new DynamicDB();
+        //    // Getting the IJSRuntime doesn't work here
+        //    Task.Delay(100).ToObservable().Subscribe(_ =>
+        //    {
+        //        try
+        //        {
+        //            var js = sp.GetService<IJSRuntime>();
+        //            js.InvokeAsync<string>("PlayerService.stopRecording", null).AsTask().ToObservable().Subscribe(id =>
+        //            {
+        //                services.AddSingleton<IFirebase, FirebaseService>(sp => new FirebaseService(id));
+        //                services.AddSingleton<IAzure, AzureService>();
+
+        //                // Start the app with the Firebase database
+        //                ddb.SetCurrentDB(() => sp.GetService<IFirebase>());
+        //            });
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Debug.WriteLine(ex.ToString());
+        //        }
+        //    });
+        //    return ddb;
+        //}
     }
 }

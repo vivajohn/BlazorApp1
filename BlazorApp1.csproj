@@ -11,7 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="tsproject\src\firebase.ts" />
     <None Remove="tsproject\src\secret.js" />
     <None Remove="tsproject\src\util.js" />
   </ItemGroup>
@@ -48,10 +47,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FlashCommon\FlashCommon\FlashCommon.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <TypeScriptCompile Include="tsproject\src\firebase.ts" />
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

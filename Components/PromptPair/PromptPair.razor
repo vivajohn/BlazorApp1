@@ -131,27 +131,11 @@
                 Pair.isActive = Pair.prompts[0].id > 0 && Pair.prompts[1].id > 0;
                 db.SavePromptPair(Pair).Subscribe();
             }
-            // Problem writing blob in C#
-            // TO DO: find a better way to do this?
-            if (db.Name == DBNames.Firebase)
+            db.SaveRecording(Pair.uid, Pair.prompts[index], blobs[index]).Subscribe(_ =>
             {
-                JSCaller.Call<Recording>(JSRuntime, "Firebase.saveBlob", Pair.uid, Pair.prompts[index], blobs[index]).Subscribe(rec =>
-                {
-                    System.Diagnostics.Debug.WriteLine("Recording saved");
-                    urls[index] = rec.url;
-                    blobs[index] = new FirestoreBlob(rec.type, rec.blob64);
-                    this.IsRecording[index] = false;
-                    InvokeAsync(() => StateHasChanged());
-                });
-            }
-            else
-            {
-                db.SaveRecording(Pair.uid, Pair.prompts[index], blobs[index]).Subscribe(_ =>
-                {
-                    blobs[index] = null;
-                    InvokeAsync(() => StateHasChanged());
-                });
-            }
+                blobs[index] = null;
+                InvokeAsync(() => StateHasChanged());
+            });
         });
     }
 

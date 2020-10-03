@@ -1,14 +1,11 @@
-﻿@using System.IO;
-@using System.Text.Json
-@using System.Diagnostics
-@using Google.Cloud.Firestore
-@using BlazorApp1.Components.PairsPanel
+﻿@using BlazorApp1.Components.PairsPanel
 @using BlazorApp1.Components.Navbar
 @using BlazorApp1.Components.DeleteButton
 @using FlashCommon
 @using System.Reactive;
 @using System.Reactive.Linq;
 @using System.Reactive.Subjects;
+@implements IDisposable
 @inject IDynamicDB ddb;
 @inject IJSRuntime JSRuntime;
 
@@ -70,6 +67,7 @@
     Topic topic;
     long idOpen = -1;
     private ReplaySubject<string> oText = new ReplaySubject<string>(0);
+    private IDisposable subscription;
 
     protected override Task OnInitializedAsync()
     {
@@ -85,28 +83,36 @@
             return;
         }
         base.OnInitialized();
-        ddb.CurrentDB.Subscribe(db =>
+        subscription = ddb.CurrentDB.Subscribe(db =>
         {
             idOpen = -1;
             topic = null;
-            InvokeAsync(() => StateHasChanged());
-            db.GetTopics(Globals.uid).Subscribe(topics =>
+            //InvokeAsync(() => StateHasChanged());
+            db.CurrentUserId.Subscribe(uid =>
             {
-                if (topics.Count > 0)
+                db.GetTopics(uid).Subscribe(topics =>
                 {
-                    topic = topics[0];
-                    if (topic.decks.Count == 1)
+                    if (topics.Count > 0)
                     {
-                        OnDeckOpen(true, topic.decks[0]);
+                        topic = topics[0];
+                        if (topic.decks.Count == 1)
+                        {
+                            OnDeckOpen(true, topic.decks[0]);
+                        }
+                        InvokeAsync(() => StateHasChanged());
                     }
-                    InvokeAsync(() => StateHasChanged());
-                }
+                });
             });
         });
         oText.Throttle(new TimeSpan(0, 0, 0, 1)).Subscribe(text =>
         {
             ddb.SingleDB.Subscribe(db => db.SaveTopic(topic).Subscribe());
         });
+    }
+
+    public void Dispose()
+    {
+        subscription.Dispose();
     }
 
     void TextChanged(ChangeEventArgs e, Deck deck)
@@ -129,7 +135,10 @@
         {
             ddb.SingleDB.Subscribe(db =>
             {
-                db.GetPairs(Globals.uid, deck).Subscribe(pairs => InvokeAsync(() => StateHasChanged()));
+                db.CurrentUserId.FirstAsync().Subscribe(uid =>
+                {
+                    db.GetPairs(uid, deck).Subscribe(pairs => InvokeAsync(() => StateHasChanged()));
+                });
             });
         }
     }
