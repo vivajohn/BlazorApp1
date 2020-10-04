@@ -33,7 +33,7 @@ export class PlayerService {
       this.isPlaying = true;
     };
     this.audioElement.onended = () => {
-        console.log("play end", url);
+        //console.log("play end", url);
         this.isPlaying = false;
         subject.next();
         subject.complete();
@@ -46,7 +46,7 @@ export class PlayerService {
       this.isPlaying = false;
       this.audioElement = undefined;
     };
-    console.log("play", url.length);
+    //console.log("play", url.length);
     this.audioElement.play();
     return subject;
   }
@@ -67,7 +67,7 @@ export class PlayerService {
 
   // : Subject<{ blob: Blob; url: string }>
   public record(s: any) {
-    console.log("Player.recording");
+    //console.log("Player.recording");
 
     const subject = new DotNetSubject(s);
 
@@ -79,21 +79,20 @@ export class PlayerService {
       this.mediaRecorder = new (<any>window).MediaRecorder(stream, options);
 
       this.mediaRecorder.addEventListener('start', (e: any) => {
-        console.log("onstart");
+        //console.log("onstart");
         this.isRecording = true;
         this.isLoading = false;
         this.timer = setTimeout(() => this.stopRecording(), this.maxRecordTime);
       });
 
       this.mediaRecorder.addEventListener('dataavailable', (e: any) => {
-         console.log("ondataavailable", e.data);
+         //console.log("ondataavailable", e.data);
         if (e.data.size > 0) {
             recordedChunks.push(e.data);
         }
       });
 
       this.mediaRecorder.addEventListener('stop', (e: any) => {
-        console.log("Player: stop recording");
         // This gets called when the stopRecording() method gets called which is
         // called when the user clicks on the stop icon.
         // console.log("onstop", this.isLoading);
@@ -128,7 +127,6 @@ export class PlayerService {
 
 
   public stopRecording() {
-    console.log("Player.stopRecording");
     this.isRecording = false;
     if (this.timer) {
       clearTimeout(this.timer);

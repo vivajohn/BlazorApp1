@@ -10,10 +10,10 @@
 <div class="navbar">
     <div class="navbar-left">
         <RoundButton Icon="power_settings_new" Click="@LogOff"></RoundButton>
-        <div class="rowfullcenter">
+        @*<div class="rowfullcenter">
             <RoundButton Icon="toggle_on" Click="@ToggleDb"></RoundButton>
             <div class="dbname">@DbName</div>
-        </div>
+        </div>*@
         @LeftContent
     </div>
     <div class="navbar-middle">
@@ -36,10 +36,18 @@
 
     protected override Task OnInitializedAsync()
     {
+        Console.WriteLine("OnInitializedAsync");
         ddb.CurrentDB.Subscribe(db =>
         {
             DbName = db.Name.ToString();
             InvokeAsync(() => StateHasChanged());
+        });
+
+        JSCaller.Value<int>(JSRuntime, "flash.utcOffset").Subscribe(minutes =>
+        {
+            // JS offset is negative relative to the .NET time offset
+            int m = (int)TimeZoneInfo.Local.GetUtcOffset(DateTime.Now).TotalMinutes;
+            JSTime.ServerOffset = m + minutes;
         });
 
         return base.OnInitializedAsync();
@@ -56,6 +64,7 @@
 
     public void ToggleDb()
     {
+        Console.WriteLine("Toggling");
         ddb.SingleDB.Subscribe(db =>
         {
             DBChange.To(db.Name == DBNames.Azure ? DBNames.Firebase : DBNames.Azure);

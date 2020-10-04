@@ -5,6 +5,7 @@
 @using System.Reactive;
 @using System.Reactive.Linq;
 @using System.Reactive.Subjects;
+@using CustomExtensions;
 @implements IDisposable
 @inject IDynamicDB ddb;
 @inject IJSRuntime JSRuntime;
@@ -87,8 +88,8 @@
         {
             idOpen = -1;
             topic = null;
-            //InvokeAsync(() => StateHasChanged());
-            db.CurrentUserId.Subscribe(uid =>
+        //InvokeAsync(() => StateHasChanged());
+        db.CurrentUserId.Subscribe(uid =>
             {
                 db.GetTopics(uid).Subscribe(topics =>
                 {
@@ -135,7 +136,7 @@
         {
             ddb.SingleDB.Subscribe(db =>
             {
-                db.CurrentUserId.FirstAsync().Subscribe(uid =>
+                db.CurrentUserId.Once().Subscribe(uid =>
                 {
                     db.GetPairs(uid, deck).Subscribe(pairs => InvokeAsync(() => StateHasChanged()));
                 });

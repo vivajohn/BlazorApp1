@@ -70,7 +70,8 @@
     private bool IsPlaying = false;
     private bool IsLoading = true;
     private DateTime? NextTime;
-    private IDisposable subscription;
+    private List<IDisposable> subscription = new List<IDisposable>();
+    private IDisposable stimer;
 
     MatTheme theme1 = new MatTheme()
     {
@@ -86,6 +87,7 @@
             JSRuntime.InvokeAsync<Unit>("flash.reload", null);
             return;
         }
+
         base.OnInitialized();
     }
 
@@ -93,9 +95,11 @@
     {
         if (firstRender)
         {
-            subscription = ddb.CurrentDB.Select(db => db).Subscribe(db =>
+            subscription.Add(ddb.CurrentDB.Select(db => db).Subscribe(db =>
             {
+                DisposeTimer();
                 IsLoading = true;
+                urls = null;
                 InvokeAsync(() => StateHasChanged());
 
                 mgr = new PlaybackMgr(db);
@@ -109,7 +113,7 @@
                     // Formats the blob data for playback on an HTML media element
                     if (blobs == null)
                     {
-                        Task.Delay(3500).ToObservable().Subscribe(_ => navMgr.NavigateTo("/recorder"));
+                        stimer = Task.Delay(3500).ToObservable().Subscribe(_ => navMgr.NavigateTo("/recorder"));
                     }
                     else
                     {
@@ -121,13 +125,24 @@
                     IsLoading = false;
                     InvokeAsync(() => StateHasChanged());
                 });
-            });
+            }));
         }
     }
 
     public void Dispose()
     {
-        subscription.Dispose();
+        DisposeTimer();
+        mgr.Dispose();
+        foreach(var s in subscription) s.Dispose();
+    }
+
+    private void DisposeTimer()
+    {
+        if (stimer != null)
+        {
+            stimer.Dispose();
+            stimer = null;
+        }
     }
 
     void PlayPrompt(int index)
@@ -136,7 +151,6 @@
         // Plays back a blob on an HTML media element
         JSCaller.Call<Unit>(JSRuntime, "PlayerService.playUrl", urls[index]).Subscribe(u =>
         {
-            System.Diagnostics.Debug.WriteLine("End playing");
             this.IsPlaying = false;
             InvokeAsync(() => StateHasChanged());
         });
@@ -151,5 +165,9 @@
     void UpdateCard(bool success)
     {
         NextTime = mgr.NextCard(success);
+        if (NextTime.HasValue)
+        {
+            NextTime = NextTime.Value.AddMinutes(-JSTime.ServerOffset);
+        }
     }
 }

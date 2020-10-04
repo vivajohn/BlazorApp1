@@ -46,6 +46,10 @@ window.flash = {
     location.href = '/';
   },
 
+  utcOffset: () => {
+    return (new Date(Date.now())).getTimezoneOffset();
+  },
+
 }
 
 
