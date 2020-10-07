@@ -18,6 +18,7 @@ using Secrets;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
+using System.Net.Http;
 
 namespace BlazorApp1
 {
@@ -37,16 +38,21 @@ namespace BlazorApp1
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IDynamicDB, DynamicDB>();
-            services.AddSingleton<IFirebase, FirebaseService>(sp => new FirebaseService(Secret.FirebaseProjectId));
-            services.AddSingleton<IAzure, AzureService>();
-
             // This removes the buffer size limit on data passed between Blazor and javascript code.
             // The limit causes problems when trying to return a blob from javascript.
             services.AddSignalR(e => e.MaximumReceiveMessageSize = null);
 
             services.AddRazorPages();
             services.AddServerSideBlazor();
+
+            services.AddTransient(sp => new HttpClient());
+
+            services.AddSingleton<IDynamicDB, DynamicDB>();
+            services.AddSingleton<IFirebase, FirebaseService>(sp => 
+                new FirebaseService(Secret.FirebaseProjectId));
+            services.AddSingleton<IPython, PythonService>(sp => 
+                new PythonService(new HttpClient(), Configuration["PythonBaseUrl"]));
+            services.AddSingleton<IAzure, AzureService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -85,7 +91,8 @@ namespace BlazorApp1
             // Start the app with the Azure database
             var ddb = app.ApplicationServices.GetService<IDynamicDB>();
             //ddb.SetCurrentDB(() => app.ApplicationServices.GetService<IFirebase>());
-            ddb.SetCurrentDB(() => app.ApplicationServices.GetService<IAzure>());
+            //ddb.SetCurrentDB(() => app.ApplicationServices.GetService<IAzure>());
+            ddb.SetCurrentDB(() => app.ApplicationServices.GetService<IPython>());
         }
 
         //private DynamicDB InitServices(IServiceCollection services, IServiceProvider sp)

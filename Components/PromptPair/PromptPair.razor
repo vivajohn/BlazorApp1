@@ -75,7 +75,6 @@
         base.OnInitialized();
         oText.Throttle(new TimeSpan(0, 0, 0, 1)).Subscribe(text =>
         {
-            System.Diagnostics.Debug.WriteLine($"Throttle: {Pair.prompts[0].text}, {Pair.prompts[1].text} ");
             ddb.SingleDB.Subscribe(db => db.SavePromptPair(Pair));
         });
     }
@@ -83,7 +82,6 @@
     void NewText(ChangeEventArgs e, int index)
     {
         Pair.prompts[index].text = e.Value.ToString();
-        System.Diagnostics.Debug.WriteLine("NewText " + e.Value.ToString());
         oText.OnNext(e.Value.ToString());
         TextChanged.InvokeAsync(index);
     }
@@ -105,7 +103,6 @@
         this.IsRecording[index] = true;
         JSCaller.Call<Recording>(JSRuntime, "PlayerService.record").Subscribe(rec =>
         {
-            System.Diagnostics.Debug.WriteLine("End recording");
             urls[index] = rec.url;
             blobs[index] = new FirestoreBlob(rec.type, rec.blob64);
             this.IsRecording[index] = false;

@@ -42,12 +42,15 @@ window.flash = {
   },
 
   reload: () => {
-    console.log("reload");
     location.href = '/';
   },
 
   utcOffset: () => {
     return (new Date(Date.now())).getTimezoneOffset();
+  },
+
+  write: (text) => {
+    console.log(text);
   },
 
 }

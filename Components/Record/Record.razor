@@ -54,7 +54,9 @@
                     {
                         @foreach (var pair in deck.groups)
                         {
-                            <PairsPanel Pair=@pair Delete="@(e => DeletePair(deck, pair))" IsOpen="@(deck.groups.Count == 1)"></PairsPanel>
+                            <PairsPanel Pair=@pair Delete="@(e => DeletePair(deck, pair))" 
+                                        IsOpen="@(deck.groups.Count == 1 || pair.id == newPairId)">
+                            </PairsPanel>
                         }
                     }
                 </MatExpansionPanelDetails>
@@ -65,8 +67,9 @@
 }
 
 @code {
-    Topic topic;
+    Topic topic= null;
     long idOpen = -1;
+    long newPairId = 0;
     private ReplaySubject<string> oText = new ReplaySubject<string>(0);
     private IDisposable subscription;
 
@@ -87,9 +90,13 @@
         subscription = ddb.CurrentDB.Subscribe(db =>
         {
             idOpen = -1;
-            topic = null;
-        //InvokeAsync(() => StateHasChanged());
-        db.CurrentUserId.Subscribe(uid =>
+            newPairId = 0;
+            if (topic != null)
+            {
+                topic = null;
+                InvokeAsync(() => StateHasChanged());
+            }
+            db.CurrentUserId.Once().Subscribe(uid =>
             {
                 db.GetTopics(uid).Subscribe(topics =>
                 {
@@ -98,9 +105,35 @@
                         topic = topics[0];
                         if (topic.decks.Count == 1)
                         {
-                            OnDeckOpen(true, topic.decks[0]);
+                            OnDeckOpenAsync(true, topic.decks[0]);
+                        }
+                        else if (topic.decks.Count == 0)
+                        {
+                            // Add a deck to the topic
+                            topic.decks = Topic.DefaultTopic(uid).decks;
+                            db.SaveTopic(topic).Subscribe(_ =>
+                            {
+                                OnDeckOpenAsync(true, topic.decks[0]);
+                            });
                         }
                         InvokeAsync(() => StateHasChanged());
+                    }
+                    else
+                    {
+                        // Add a default topic
+                        db.GetUserInfo(uid).Once().Subscribe(user =>
+                        {
+                            topic = Topic.DefaultTopic(uid);
+                            user.currentTopicId = topic.id;
+                            var o = new IObservable<Unit>[3];
+                            o[0] = db.AddNewUser(user);
+                            o[1] = db.SaveTopic(topic);
+                            o[2] = db.SavePromptPair(topic.decks[0].groups[0]);
+                            Observable.Merge(o).LastAsync().Subscribe(_ =>
+                            {
+                                OnDeckOpenAsync(true, topic.decks[0]);
+                            });
+                        });
                     }
                 });
             });
@@ -124,6 +157,7 @@
 
     void OnDeckOpen(bool open, Deck deck)
     {
+        newPairId = 0;
         if (open)
         {
             idOpen = deck.id;
@@ -144,6 +178,16 @@
         }
     }
 
+    void OnDeckOpenAsync(bool open, Deck deck)
+    {
+        OnDeckOpen(open, deck);
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    private void OpenDeck(bool open, Deck deck)
+    {
+    }
+
     void OnAddDeck()
     {
         ddb.SingleDB.Subscribe(db =>
@@ -158,7 +202,11 @@
         ddb.SingleDB.Subscribe(db =>
         {
             var pair = topic.CreatePromptResponsePair(deck);
-            db.SavePromptPair(pair).Subscribe(_ => InvokeAsync(() => StateHasChanged()));
+            db.SavePromptPair(pair).Subscribe(_ =>
+            {
+                newPairId = pair.id;
+                InvokeAsync(() => StateHasChanged());
+            });
         });
     }
 
@@ -192,4 +240,5 @@
             });
         });
     }
+
 }

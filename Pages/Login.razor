@@ -2,6 +2,9 @@
 @using FlashCommon
 @using System.Reactive;
 @using System.Reactive.Linq;
+@using System.Reactive.Threading.Tasks;
+@using System.Net.Http;
+@inject HttpClient client
 @inject IJSRuntime JSRuntime;
 @inject NavigationManager navMgr;
 @inject IDynamicDB ddb;
@@ -24,13 +27,16 @@
                     {
                         if (info == null)
                         {
+                            JSCaller.Write(JSRuntime, "Adding new user");
                             AddNewUser(db, user).Subscribe(_ =>
                             {
+                                JSCaller.Write(JSRuntime, "User added");
                                 db.SetCurrentUserId(user.uid);
                                 Navigate();
                             });
                             return;
                         }
+                        JSCaller.Write(JSRuntime, "User exists");
 
                         db.SetCurrentUserId(info.uid);
                         Navigate();
@@ -51,36 +57,12 @@
     }
 
 
-    // Set up data base entries for a new user
+    // Add a new user in the database
+    // Data for topic and prompts will be setup in the recording page
     public IObservable<Unit> AddNewUser(IDatabase db, User user)
     {
         user.accountType = "pro";
-        var topic = NewTopic(user.uid);
-        user.currentTopicId = topic.id;
-        var o = new IObservable<Unit>[3];
-        o[0] = db.AddNewUser(user);
-        o[1] = db.SaveTopic(topic);
-        o[2] = db.SavePromptPair(topic.decks[0].groups[0]);
-        return Observable.Merge(o).LastAsync();
-    }
-
-    private Topic NewTopic(string uid)
-    {
-        var topic = new Topic()
-        {
-            decks = new List<Deck>(),
-            id = JSTime.Now,
-            isLanguage = true,
-            listMode = false,
-            source = new Source() { id = "en", name = "en" },
-            target = new Target() { id = "de", name = "de" },
-            uid = uid,
-        };
-        var deck = topic.AddDeck();
-        deck.name = "General";
-        deck.groups[0].prompts[0].text = "Example";
-        deck.groups[0].prompts[1].text = "Beispiel";
-        return topic;
+        return db.AddNewUser(user);
     }
 
 }

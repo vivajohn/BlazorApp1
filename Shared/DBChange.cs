@@ -8,13 +8,17 @@ namespace BlazorApp1.Shared
         public static void To(DBNames targetDb)
         {
             Func<IDatabase> db;
-            if (targetDb == DBNames.Firebase)
+            switch (targetDb)
             {
-                db = () => ServiceLocator.GetInstance<IFirebase>();
-            }
-            else
-            {
-                db = () => ServiceLocator.GetInstance<IAzure>();
+                case DBNames.Firebase:
+                    db = () => ServiceLocator.GetInstance<IFirebase>();
+                    break;
+                case DBNames.Python:
+                    db = () => ServiceLocator.GetInstance<IPython>();
+                    break;
+                default:
+                    db = () => ServiceLocator.GetInstance<IAzure>();
+                    break;
             }
 
             var ddb = ServiceLocator.GetInstance<IDynamicDB>();
