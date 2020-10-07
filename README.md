@@ -1,5 +1,5 @@
 # BlazorApp1
-This is my first experience with Blazor. I implemented part of my Audio Flashcards Angular app as a Blazor app. The recording adding and deleting prompt-response recordings. The playback page plays the recordings and reschedules the prompts client-side.
+This is my first experience with Blazor. I implemented part of my Audio Flashcards Angular app as a Blazor app. The recording page is used for adding and deleting prompt-response recordings. The playback page plays the recordings and reschedules the prompts client-side.
 
 The application can switch in real-time between using an Azure Cosmos or a Cloud Firestore database, both of which are no-sql. The Cloud Firestore database is accessed via a REST API written in Python. The Python API is hosted on Google Cloud and was uploaded using Docker.
 
