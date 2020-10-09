@@ -91,8 +91,8 @@ namespace BlazorApp1
             // Start the app with the Azure database
             var ddb = app.ApplicationServices.GetService<IDynamicDB>();
             //ddb.SetCurrentDB(() => app.ApplicationServices.GetService<IFirebase>());
-            //ddb.SetCurrentDB(() => app.ApplicationServices.GetService<IAzure>());
-            ddb.SetCurrentDB(() => app.ApplicationServices.GetService<IPython>());
+            ddb.SetCurrentDB(() => app.ApplicationServices.GetService<IAzure>());
+            //ddb.SetCurrentDB(() => app.ApplicationServices.GetService<IPython>());
         }
 
         //private DynamicDB InitServices(IServiceCollection services, IServiceProvider sp)

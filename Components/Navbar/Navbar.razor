@@ -11,13 +11,13 @@
 <div class="navbar">
     <div class="navbar-left">
         <RoundButton Icon="power_settings_new" Click="@LogOff"></RoundButton>
+        @LeftContent
+    </div>
+    <div class="navbar-middle">
         <div class="rowfullcenter">
             <RoundButton Icon="toggle_on" Click="@ToggleDb"></RoundButton>
             <div class="dbname">@DbName</div>
         </div>
-        @LeftContent
-    </div>
-    <div class="navbar-middle">
         @MiddleContent
     </div>
     <div class="navbar-right">
